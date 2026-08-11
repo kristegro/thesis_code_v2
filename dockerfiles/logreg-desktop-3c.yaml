@@ -1,0 +1,108 @@
+services:
+  # create Prometheus service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../storage/prometheus-storage:/prometheus
+    depends_on:
+      - cadvisor
+
+  # create cAdvisor service
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # create SuperNode service for client 0.
+  desktop-supernode-0:
+    image: flwr/supernode:1.20.0
+    command:
+      - --insecure
+      - --superlink
+      - 192.168.68.103:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9095
+      - --isolation
+      - process
+      - --node-config
+      - 'partition-id=1 num-partitions=3 addr="192.168.68.103"'
+
+  # create ClientApp service for client 0.
+  desktop-clientapp-0:
+    image: dockerfiles-clientapp-task-build
+    command:
+      - --insecure
+      - --clientappio-api-address
+      - desktop-supernode-0:9095
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1"
+    stop_signal: SIGINT
+    depends_on:
+      - desktop-supernode-0
+    volumes:
+      - type: bind
+        source: ../storage/key_store/node0/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/
+
+  # create SuperNode service for client 1.
+  desktop-supernode-1:
+    image: flwr/supernode:1.20.0
+    command:
+      - --insecure
+      - --superlink
+      - 192.168.68.103:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9096
+      - --isolation
+      - process
+      - --node-config
+      - 'partition-id=2 num-partitions=3 addr="192.168.68.103"'
+
+  # create ClientApp service for client 1.
+  desktop-clientapp-1:
+    image: dockerfiles-clientapp-task-build
+    command:
+      - --insecure
+      - --clientappio-api-address
+      - desktop-supernode-1:9096
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1"
+    stop_signal: SIGINT
+    depends_on:
+      - desktop-supernode-1
+    volumes:
+      - type: bind
+        source: ../storage/key_store/node1/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/

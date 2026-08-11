@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "logreg-secagg"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]==1.20.0",
+    "flwr-datasets[vision]==0.5.0",
+    "torch==2.8.0",
+    "torchvision==0.23.0",
+    "prometheus_client>=0.19.0"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "Kristian Teig Grønvold"
+
+[tool.flwr.app.components]
+serverapp = "logreg_secagg.server_app:app"
+clientapp = "logreg_secagg.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
+fraction-fit = 1 # Need all clients to train for experiments.
+scale = "classic" # Scale to use for images.
+# classic is 1*28*28 tensors from 28*28 pixel gray scale images.
+# larger is 1*224*224 tensors from enlargend 224*224 pixel gray scale images.
+# rgb is 3*224*224 tensors from enlargened 224*224 pixel RGB images.
+local-epochs = 10
+# Parameters for the SecAgg protocol
+reconstruction-threshold = 1.0
+max-weight = 12000
+
+[tool.flwr.federations]
+default = "localhost"
+
+[tool.flwr.federations.localhost]
+options.num-supernodes = 3
+address = "127.0.0.1:9093" # Address and port that flwr run should communicate with.
+insecure = true

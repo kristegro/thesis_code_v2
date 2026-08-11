@@ -1,0 +1,12 @@
+services:
+  # Create service to build serverapp image for keygen so that it is only done once.
+  serverapp-task-build:
+    build: 
+      context: ../
+      dockerfile: dockerfiles/serverapp.Dockerfile
+
+  # Create service to build clientapp image for keygen so that it is only done once.
+  clientapp-task-build:
+    build: 
+      context: ../
+      dockerfile: dockerfiles/clientapp.Dockerfile
