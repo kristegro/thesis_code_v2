@@ -5,9 +5,9 @@ from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context
 import torch
 
-import orgfedavg.orgfedavg.tasks.logreg_task as lr_task
-import orgfedavg.orgfedavg.tasks.squeezenet_task as sq_task
-import orgfedavg.orgfedavg.tasks.bert_task as b_task
+import orgfedavg.tasks.logreg_task as lr_task
+import orgfedavg.tasks.squeezenet_task as sq_task
+import orgfedavg.tasks.bert_task as b_task
 
 # Flower client
 class FlowerClient(NumPyClient):
@@ -16,11 +16,11 @@ class FlowerClient(NumPyClient):
         self.model = model
         self.trainloader = trainloader
         self.valloader = valloader
-        self.local_epochs = local_epochs,
-        self.set_weights = set_weights_func,
-        self.get_weights = get_weights_func,
-        self.train = train_func,
-        self.test = test_func,
+        self.local_epochs = local_epochs
+        self.set_weights = set_weights_func
+        self.get_weights = get_weights_func
+        self.train = train_func
+        self.test = test_func
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(self, parameters, config):

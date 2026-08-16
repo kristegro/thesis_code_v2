@@ -21,9 +21,9 @@ from flwr.server.strategy.aggregate import aggregate, aggregate_inplace, weighte
 from prometheus_client import Gauge, Counter, start_http_server
 
 # from orgfedavg.orgfedavg.tasks.logreg_task import get_weights, set_weights, create_model
-import orgfedavg.orgfedavg.tasks.logreg_task as lr_task
-import orgfedavg.orgfedavg.tasks.squeezenet_task as sq_task
-import orgfedavg.orgfedavg.tasks.bert_task as b_task
+import orgfedavg.tasks.logreg_task as lr_task
+import orgfedavg.tasks.squeezenet_task as sq_task
+import orgfedavg.tasks.bert_task as b_task
 
 """The only real difference between Log_FedAvg_Scraping and the Log_FedAvg 
 in org-fedavg-docker is that Scraping takes Prometheus gauges as arguments
@@ -39,7 +39,7 @@ class Log_FedAvg_Scraping(FedAvg):
             num_rounds: int = None,
             scale: str = None,
             org_model = None,
-            set_weights: function = None,
+            set_weights = None,
             model_choice: str = None,
             *args,
             **kwargs
