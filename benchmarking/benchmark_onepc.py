@@ -229,16 +229,8 @@ for test in range(parameters["num_tests"]):
     """Starte containere + flwr run. Må be stasjonær pc om å starte containere også?"""
 
     print("Skrur på egne containere.")
-    if parameters["model"] == "logreg" or parameters['num_clients'] in [3,5, 7]:
-        args = f'docker compose -f dockerfiles/logreg-laptop-{parameters["num_clients"]}c.yaml up'
-    else:
-        # Kun squeezenet og bert for 7 clients skal kjøre flest clients på bærbar.
-        args = f'docker compose -f dockerfiles/laptop-{parameters["num_clients"]}c.yaml up'
+    args = f'docker compose -f dockerfiles/single-comp-{parameters["num_clients"]}c.yaml up'
     containers = subprocess.Popen(args, shell=True, start_new_session=True)
-
-    # Bruke stasjonær sin ip.
-    print("Ber stasjonær om å skru på containere.")
-    client = mpc.Client(("192.168.68.102", 12400))
 
     # Vent litt for å sikre at server har startet før flwr run kjøres.
     time.sleep(10)
@@ -247,11 +239,12 @@ for test in range(parameters["num_tests"]):
     starting_time = str(int(time.time()))
 
     time.sleep(3)
-    args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-{parameters["program"]}/ "
+    args1 = f"flwr run orgfedavg/ "
+    args2 = f"-c 'model={parameters['model']}' "
     if parameters["program"] == "fhefedavg":
         if parameters['scheme'] == "CKKS-NF":
             args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-ckks-nf/ "
-        args2 = f"-c 'scheme=\"{parameters["scheme"]}\" num-clients={parameters["num_clients"]} "
+        args2 += f"'scheme=\"{parameters["scheme"]}\" num-clients={parameters["num_clients"]} "
         args2 += f"security-level=\"{parameters['sec_level']}\" ring-dim={parameters['ring_dim']} "
         if parameters['scheme'] != "CKKS":
             args2 += f"num-coeffs={parameters['num_coeffs']} max-deg-int={parameters['max_deg_int']} "
@@ -265,9 +258,9 @@ for test in range(parameters["num_tests"]):
             args2 += f"no-polynomial-encoding=true "
         args2 += f"chunk-size={parameters['chunk_size']}' "
     elif parameters['program'] == 'secagg':
-        args2 = f"-c 'max-weight={parameters['max_weight']}' "
+        args2 += f"'max-weight={parameters['max_weight']}' "
     else:
-        args2 = f""
+        args2 += f""
     args3 = f"--federation-config 'options.num-supernodes={parameters["num_clients"]}'"
     args=args1+args2+args3
     print(f"Command to launch flwr run:\n{args}")
@@ -480,10 +473,7 @@ for test in range(parameters["num_tests"]):
     move_models(parameters, num_dirs)
    
     print("Skrur av egne containere.")
-    if parameters["model"] == "logreg" or parameters['num_clients'] in [3,5, 7]:
-        args = f'docker compose -f dockerfiles/logreg-laptop-{parameters["num_clients"]}c.yaml down'
-    else:
-        args = f'docker compose -f dockerfiles/laptop-{parameters["num_clients"]}c.yaml down'
+    args = f'docker compose -f dockerfiles/single-comp-{parameters["num_clients"]}c.yaml down'
     down = subprocess.run(args=args, shell=True, start_new_session=True)
 
     # For logreg ser det ut til å holde å sleepe 3 min,
