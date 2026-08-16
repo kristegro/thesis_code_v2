@@ -351,6 +351,125 @@ def runtime_to_csv(num_dirs, parameters, times):
                                 "other"])
             csvwriter.writerow([total_time] + desktop_ml_mean_times + laptop_ml_mean_times + [other_time])
 
+def runtime_to_csv_single_pc(num_dirs, parameters, times):
+    # Pakk ut tider.
+    if parameters['scheme'] == "CKKS-NF" and parameters['program'] == "fhefedavg":
+        total_time, laptop_ml_mean_times, noise_times, keygen_times, dec_times, block_times = times
+        laptop_ml_mean_times = laptop_ml_mean_times.tolist()
+        # Tid som ikke brukes på ML oppgaver.
+        other_time = float(total_time - np.sum(laptop_ml_mean_times)
+                                      - np.sum(keygen_times)
+                                      - np.sum(block_times))
+        # Tid som ble brukt på oppdeling/gjennoppbygging, men ikke decryption.
+        block_no_deck_times = [block_times[i] - dec_times[i] for i in range(len(block_times))]
+    elif parameters['program'] == "fhefedavg":
+        total_time, laptop_ml_mean_times, keygen_times, dec_times, block_times = times
+        laptop_ml_mean_times = laptop_ml_mean_times.tolist()
+        # Tid som ikke brukes på ML oppgaver.
+        other_time = float(total_time - np.sum(laptop_ml_mean_times)
+                                      - np.sum(keygen_times)
+                                      - np.sum(block_times))
+        # Tid som ble brukt på oppdeling/gjennoppbygging, men ikke decryption.
+        block_no_deck_times = [block_times[i] - dec_times[i] for i in range(len(block_times))]
+    else:
+        total_time, laptop_ml_mean_times = times
+        laptop_ml_mean_times = laptop_ml_mean_times.tolist()
+
+        other_time = float(total_time - np.sum(laptop_ml_mean_times))
+
+        
+    path = construct_path(parameters)
+    
+
+    """current_path eksemepel:
+    ./benchmarking_results/imdb-fhefedavg/CKKS/nc3/
+    for imdb-fhefedavg kjørt med CKKS og 3 clients."""
+    # Lag path hvis den ikke eksisterer.
+    current_path = Path(path)
+    Path.mkdir(current_path, 
+               parents=True, 
+               exist_ok=True)
+
+    """Mappe for run skal ha navn 'run{num_dirs+1}',
+    altså første run for navn 'run1' osv."""
+    run_dir = f"run{num_dirs}/"
+    Path.mkdir(Path(path+run_dir), exist_ok=True)
+
+    if parameters['scheme'] == "CKKS-NF" and parameters['program'] == "fhefedavg":
+        with open(path+run_dir+f"runtime.csv", "a", newline='') as csvfile:
+            csvwriter = csv.writer(csvfile,
+                                    quotechar='"', 
+                                    quoting=csv.QUOTE_MINIMAL)
+            csvwriter.writerow(["runtime", 
+                                "ml-r1",
+                                "ml-r2",
+                                "ml-r3",
+                                "noise-r1",
+                                "noise-r2",
+                                "noise-r3",
+                                "keygen-r1",
+                                "keygen-r2",
+                                "keygen-r3",
+                                "dec-r1",
+                                "dec-r2",
+                                "dec-r3",
+                                "block-no-dec-r1",
+                                "block-no-dec-r2",
+                                "block-no-dec-r3",
+                                "block-r1",
+                                "block-r2",
+                                "block-r3",
+                                "other"])
+            csvwriter.writerow(([total_time] + laptop_ml_mean_times 
+                                + noise_times + keygen_times + dec_times + block_no_deck_times 
+                                + block_times + [other_time]))
+    elif parameters['program'] == "fhefedavg":
+        with open(path+run_dir+f"runtime.csv", "a", newline='') as csvfile:
+            csvwriter = csv.writer(csvfile,
+                                    quotechar='"', 
+                                    quoting=csv.QUOTE_MINIMAL)
+            csvwriter.writerow(["runtime",
+                                "ml-r1",
+                                "ml-r2",
+                                "ml-r3",
+                                "keygen-r1",
+                                "keygen-r2",
+                                "keygen-r3",
+                                "dec-r1",
+                                "dec-r2",
+                                "dec-r3",
+                                "block-no-dec-r1",
+                                "block-no-dec-r2",
+                                "block-no-dec-r3",
+                                "block-r1",
+                                "block-r2",
+                                "block-r3",
+                                "other"])
+            # from pprint import pprint
+            # pprint(desktop_ml_mean_times)
+            # pprint(laptop_ml_mean_times)
+            # pprint(keygen_times)
+            # pprint(dec_times)
+            # pprint(block_times)
+            # pprint(other_time)
+            # pprint(([total_time] + desktop_ml_mean_times + laptop_ml_mean_times 
+            #         + keygen_times + dec_times + block_no_deck_times 
+            #         + block_times + [other_time]))
+            csvwriter.writerow(([total_time] + laptop_ml_mean_times 
+                                + keygen_times + dec_times + block_no_deck_times 
+                                + block_times + [other_time]))
+    else:
+        with open(path+run_dir+f"runtime.csv", "a", newline='') as csvfile:
+            csvwriter = csv.writer(csvfile,
+                                    quotechar='"', 
+                                    quoting=csv.QUOTE_MINIMAL)
+            csvwriter.writerow(["runtime", 
+                                "ml-r1",
+                                "ml-r2",
+                                "ml-r3",
+                                "other"])
+            csvwriter.writerow([total_time] + laptop_ml_mean_times + [other_time])
+
 def move_models(parameters, test_run, num_rounds = 3):
     """Move stored models from storage/key_store/server
     to the correct run folder in benchmarking_results.
