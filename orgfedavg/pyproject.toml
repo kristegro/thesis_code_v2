@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orgfedavg"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]==1.20.0",
+    "flwr-datasets[vision]==0.5.0",
+    "torch==2.8.0",
+    "torchvision==0.23.0",
+    "prometheus_client>=0.19.0"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "Kristian Teig Grønvold"
+
+[tool.flwr.app.components]
+serverapp = "orgfedavg.server_app:app"
+clientapp = "orgfedavg.client_app:app"
+
+[tool.flwr.app.config]
+# General paramters
+num-server-rounds = 3
+fraction-fit = 1 # Need all clients to train for experiments.
+local-epochs = 10
+model = "logreg" # Model to train. Can be "logreg", "squeezenet" or "bert" at the moment.
+
+# Logreg only parameters
+scale = "classic" # Scale to use for images.
+# classic is 1*28*28 tensors from 28*28 pixel gray scale images.
+# larger is 1*224*224 tensors from enlargend 224*224 pixel gray scale images.
+# rgb is 3*224*224 tensors from enlargened 224*224 pixel RGB images.
+
+# BERT only parameters
+model-name = "prajjwal1/bert-tiny" # Set a larger model if you have access to more GPU resources
+num-labels = 2
+
+
+[tool.flwr.federations]
+default = "localhost"
+
+[tool.flwr.federations.localhost]
+options.num-supernodes = 3
+address = "127.0.0.1:9093" # Address and port that flwr run should communicate with.
+insecure = true
