@@ -211,3 +211,5 @@ pyrightconfig.json
 
 # Own ignores.
 .vscode
+storage
+benchmarking_results
