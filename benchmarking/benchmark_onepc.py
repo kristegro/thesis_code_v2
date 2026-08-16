@@ -240,7 +240,7 @@ for test in range(parameters["num_tests"]):
 
     time.sleep(3)
     args1 = f"flwr run orgfedavg/ "
-    args2 = f"-c 'model={parameters['model']}' "
+    args2 = f"-c 'model=\"{parameters['model']}\"' "
     if parameters["program"] == "fhefedavg":
         if parameters['scheme'] == "CKKS-NF":
             args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-ckks-nf/ "
