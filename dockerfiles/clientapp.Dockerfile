@@ -14,11 +14,12 @@ COPY --chown=app:app dockerfiles/requirements.txt .
 # Install dependencies declared in pyproject.toml
 # RUN python -m pip install -U --no-cache-dir .
 
+# Run commands as root to avoid permission denied?
+USER root
+
 # Install dependencies from lockfile requirements.txt
 RUN python -m pip install -r ./requirements.txt
 
-# Run commands as root to avoid permission denied?
-USER root
 # Set environment variables to non-interactive (this prevents some prompts)
 ENV DEBIAN_FRONTEND=noninteractive
 
