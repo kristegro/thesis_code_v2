@@ -12,7 +12,7 @@ import orgfedavg.tasks.bert_task as b_task
 # Flower client
 class FlowerClient(NumPyClient):
     def __init__(self, model, trainloader, valloader, local_epochs,
-                 set_weights_func, get_weights_func, train_func, test_func):
+                 set_weights_func, get_weights_func, train_func, test_func, model_choice):
         self.model = model
         self.trainloader = trainloader
         self.valloader = valloader
@@ -21,6 +21,7 @@ class FlowerClient(NumPyClient):
         self.get_weights = get_weights_func
         self.train = train_func
         self.test = test_func
+        self.model_choice = model_choice
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def fit(self, parameters, config):
@@ -35,7 +36,7 @@ class FlowerClient(NumPyClient):
         print("Finished training!")
 
         # Lag path hvis den ikke eksisterer.
-        current_path = Path("./storage/logreg-orgfedavg-training-time")
+        current_path = Path(f"./storage/{self.model_choice}-orgfedavg-training-time")
         Path.mkdir(current_path,
                mode=0o777,
                parents=True, 
@@ -61,12 +62,15 @@ class FlowerClient(NumPyClient):
         # Evaluate model on the data
         print("Beginning evaluation!")
         start_time = time.time()
-        loss, accuracy = self.test(self.model, self.valloader, self.device)
+        if self.model_choice == "bert":
+            loss, accuracy, f1 = self.test(self.model, self.valloader, self.device)
+        else:
+            loss, accuracy = self.test(self.model, self.valloader, self.device)
         end_time = time.time()
         print("Finished evaluation!")
 
         # Lag path hvis den ikke eksisterer.
-        current_path = Path("./storage/logreg-orgfedavg-evaluation-time")
+        current_path = Path(f"./storage/{self.model_choice}-orgfedavg-evaluation-time")
         Path.mkdir(current_path,
                mode=0o777,
                parents=True, 
@@ -84,7 +88,10 @@ class FlowerClient(NumPyClient):
         with open(Path(current_path/run_dir/"time.txt"), "a") as outfile:
             outfile.write(str(end_time-start_time))
 
-        return float(loss), len(self.valloader.dataset), {"accuracy": float(accuracy)}
+        if self.model_choice == "bert":
+            return float(loss), len(self.valloader.dataset), {"accuracy": float(accuracy), "f1": float(f1)}
+        else:
+            return float(loss), len(self.valloader.dataset), {"accuracy": float(accuracy)}
 
 
 def client_fn(context: Context):
@@ -117,7 +124,7 @@ def client_fn(context: Context):
 
     # Return Client instance
     return FlowerClient(model, trainloader, valloader, local_epochs, 
-                        set_weights, get_weights, train, test).to_client()
+                        set_weights, get_weights, train, test, model_choice).to_client()
 
 
 # Flower ClientApp

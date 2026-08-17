@@ -35,6 +35,7 @@ class Log_FedAvg_Scraping(FedAvg):
             self, 
             accuracy_gauge: Gauge = None, 
             loss_gauge: Gauge = None,
+            f1_gauge: Gauge = None,
             done_counter: Counter = None,
             num_rounds: int = None,
             scale: str = None,
@@ -48,6 +49,7 @@ class Log_FedAvg_Scraping(FedAvg):
 
         self.accuracy_gauge = accuracy_gauge
         self.loss_gauge = loss_gauge
+        self.f1_gauge = f1_gauge
         self.done_counter = done_counter
         self.num_rounds = num_rounds
         self.scale = scale
@@ -93,8 +95,8 @@ class Log_FedAvg_Scraping(FedAvg):
         model = self.org_model
         self.set_weights(model, parameters_to_ndarrays(parameters_aggregated))
         storage = os.path.abspath('storage/') + "/"
-        torch.save(model.state_dict(), storage+f"logreg-tmp-r{server_round}")
-        path = Path(storage+f"logreg-tmp-r{server_round}")
+        torch.save(model.state_dict(), storage+f"{self.model_choice}-tmp-r{server_round}")
+        path = Path(storage+f"{self.model_choice}-tmp-r{server_round}")
         Path.chmod(path, mode=0o777)
 
         return parameters_aggregated, metrics_aggregated
@@ -137,6 +139,8 @@ class Log_FedAvg_Scraping(FedAvg):
         # Update the Prometheus gauges with the latest aggregated values
         self.loss_gauge.labels(f"round-{server_round}").set(loss_aggregated)
         self.accuracy_gauge.labels(f"round-{server_round}").set(metrics_aggregated['accuracy'])
+        if self.model_choice == "bert":
+            self.f1_gauge.labels(f"round-{server_round}").set(metrics_aggregated['f1'])
 
         # Set counter to declare that last round is done.
         if server_round == self.num_rounds:
@@ -182,6 +186,11 @@ def server_fn(context: Context):
     loss_gauge = Gauge("model_loss", 
                        "Current loss of the global model",
                        labelnames=labels)
+
+    # Define a gauge to track the global model F1 score
+    f1_gauge = Gauge("model_f1", 
+                     "Current F1 score of the global model",
+                     labelnames=labels)
     
     # Define counter to track when everything is done.
     done_counter = Counter("done_counter",
@@ -193,6 +202,8 @@ def server_fn(context: Context):
     for i in range(1, num_rounds+1):
         accuracy_gauge.labels(name=f"round-{i}")
         loss_gauge.labels(name=f"round-{i}")
+        f1_gauge.labels(name=f"round-{i}")
+            
 
     # Define strategy
     strategy = Log_FedAvg_Scraping(
@@ -202,6 +213,7 @@ def server_fn(context: Context):
         evaluate_metrics_aggregation_fn=evaluation,
         accuracy_gauge=accuracy_gauge,
         loss_gauge=loss_gauge,
+        f1_gauge=f1_gauge,
         done_counter=done_counter,
         num_rounds=num_rounds,
         org_model=model,
