@@ -239,7 +239,7 @@ for test in range(parameters["num_tests"]):
     starting_time = str(int(time.time()))
 
     time.sleep(3)
-    args1 = f"flwr run logreg-fhefedavg/ "
+    args1 = f"flwr run fhefedavg/ "
     args2 = f"-c 'model=\"{parameters['model']}\""
     if parameters["program"] == "fhefedavg":
         # if parameters['scheme'] == "CKKS-NF":
@@ -260,7 +260,7 @@ for test in range(parameters["num_tests"]):
     elif parameters['program'] == 'secagg':
         args2 += f" max-weight={parameters['max_weight']}' "
     else:
-        args2 += f"'"
+        args2 += f"' "
     args3 = f"--federation-config 'options.num-supernodes={parameters["num_clients"]}'"
     args=args1+args2+args3
     print(f"Command to launch flwr run:\n{args}")
