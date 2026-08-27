@@ -76,7 +76,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - 'partition-id=0 num-partitions=5 addr="0.0.0.0"'
+      - 'partition-id=0 num-partitions=3 addr="0.0.0.0"'
     depends_on:
       - superlink
   
@@ -117,7 +117,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - 'partition-id=1 num-partitions=5 addr="192.168.68.103"'
+      - 'partition-id=1 num-partitions=3 addr="192.168.68.103"'
     depends_on:
       - superlink
 
@@ -155,7 +155,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - 'partition-id=2 num-partitions=5 addr="192.168.68.103"'
+      - 'partition-id=2 num-partitions=3 addr="192.168.68.103"'
     depends_on:
       - superlink
 
