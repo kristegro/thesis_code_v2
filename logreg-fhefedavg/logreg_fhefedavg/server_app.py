@@ -160,22 +160,23 @@ def main(grid: Grid, context: Context) -> None:
         sec_type = context.run_config["sec-type"]
 
         if sec_type == "fhefedavg":
-            weights = server_fhe(grid, context, node_ids, participating, replies)
+            weights = server_fhe(grid, context, node_ids, participating, replies, weights, round)
         else:
             # sec_type == "orgfedavg"
             # Simply sum each array in the lists received from each client,
             # extract the size sum from the first array and divide.
 
-            # Create list with as many slots as there are arrays to sum.
-            updates = replies[0].content.array_records['updates']
-            for i in range(len(updates)):
-                for j in range(1, len(replies)):
-                    # Add with array from each client.
-                    updates[i] += replies[j].content.array_records['updates'][i]
+            # Extract array record from reply, then use it.
+            record = replies[0].content.array_records['updates']
+            updates = [record[key].numpy() for key in list(record.keys())] 
+            for i in range(1, len(replies)):
+                record = replies[i].content.array_records['updates']
+                for j in range(len(updates)):
+                    updates[j] += [record[key].numpy() for key in list(record.keys())][j]
 
             # Extract first element, the sum of training set sizes, and compute division.
-            inv_sizes = 1/(weights[0][0])
-            weights = [weights[i]*inv_sizes for i in range(1, len(weights))]
+            inv_sizes = 1/(updates[0][0])
+            weights = [updates[i]*inv_sizes for i in range(1, len(updates))]
 
         del replies
         gc.collect()
@@ -185,7 +186,7 @@ def main(grid: Grid, context: Context) -> None:
         # STOPP TIDTAGNING av benchmark her!
         end_time = time.time()
         # Lag path hvis den ikke eksisterer.
-        current_path = Path("./storage/logreg-block-time")
+        current_path = Path("./storage/block-time")
         Path.mkdir(current_path,
                    mode=0o777, 
                    parents=True, 
@@ -278,8 +279,8 @@ def main(grid: Grid, context: Context) -> None:
         # Save to be able to create plots later.
         set_weights(model, weights)
         storage = os.path.abspath('storage/') + "/"
-        torch.save(model.state_dict(), storage+f"logreg-tmp-r{round}")
-        path = Path(storage+f"logreg-tmp-r{round}")
+        torch.save(model.state_dict(), storage+f"tmp-r{round}")
+        path = Path(storage+f"tmp-r{round}")
         Path.chmod(path, mode=0o777)
     
 

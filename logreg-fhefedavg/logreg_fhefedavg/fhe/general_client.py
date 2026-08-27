@@ -70,7 +70,7 @@ def weights_to_ciphertext_bytes(weights: list[list[float]], cc, jpk, scheme):
 
     for i in range(len(weights)):
         # Encode to plaintext.
-        if scheme == "CKKS":
+        if scheme == "CKKS" or scheme == "CKKS-NF":
             weight_pt = cc.MakeCKKSPackedPlaintext(weights[i])
         else:
             weight_pt = cc.MakeCoefPackedPlaintext(weights[i])
@@ -374,7 +374,7 @@ def send_pds(msg: Message, context: Context):
     # Must correspond to the batchsize of the keys,
     # and the batchsize used in clientapp.
     BATCHSIZE = context.run_config['ring-dim']
-    if context.run_config['scheme'] == "CKKS":
+    if context.run_config['scheme'] == "CKKS" or context.run_config['scheme'] == "CKKS-NF":
         BATCHSIZE = context.run_config['ring-dim'] // 2
     storage = os.path.abspath('storage/') + "/"
     cc = fhe_deserialize_file("CryptoContext", storage+"cc", ST)
@@ -412,7 +412,7 @@ def send_pds(msg: Message, context: Context):
         del tmp
         gc.collect()
 
-    if SCHEME == "CKKS":
+    if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
         # For CKKS, each slot in the plaintext contains a weight,
         # so the weights can inserted as is.
         weights_sum = np.asarray([sums.GetRealPackedValue()
@@ -558,7 +558,7 @@ def weights_blocks(msg: Message, context: Context):
     weights_chunk = []
     indices = []
     BATCHSIZE = context.run_config['ring-dim']
-    if context.run_config['scheme'] == "CKKS":
+    if context.run_config['scheme'] == "CKKS" or context.run_config['scheme'] == "CKKS-NF":
         BATCHSIZE = context.run_config['ring-dim'] // 2
     log(INFO, f"pos = {pos}, pos+cs = {pos+cs}")
 
@@ -569,7 +569,7 @@ def weights_blocks(msg: Message, context: Context):
     a different check for CKKS. num_coeffs = 1 will work as it did previously."""
     num_coeffs = context.run_config['num-coeffs']
     max_deg_int = context.run_config['max-deg-int']
-    if SCHEME == "CKKS":
+    if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
         num_coeffs = 1
 
     for p in range(pos, pos+cs):
@@ -585,7 +585,7 @@ def weights_blocks(msg: Message, context: Context):
             the tuple is simply empty and the whole array is returned.
             Thus, there is no need for an if-test to check if it is empty,
             as I had previously."""
-            if SCHEME == "CKKS":
+            if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
                 # For CKKS the weights can be added as is.
                 weights_chunk.append(weights[idx[0]][tuple(idx[1::])])
             else:

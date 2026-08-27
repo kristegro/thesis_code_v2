@@ -35,12 +35,13 @@ scale = "classic" # Scale to use for images.
 # larger is 1*224*224 tensors from enlargend 224*224 pixel gray scale images.
 # rgb is 3*224*224 tensors from enlargened 224*224 pixel RGB images.
 local-epochs = 10
+model = "logreg" # Model to train. Can be "logreg", "squeezenet" or "bert" at the moment.
 
 # Security type, can be "orgfedavg" or "fhefedavg".
 sec-type = "orgfedavg" # or "fhefedavg"
 
 # FHE parameters:
-scheme = "CKKS" # Encryption scheme. Can also be BFV or BGV
+scheme = "BFV" # Encryption scheme. Can also be BFV or BGV
 ser-type = "BINARY" # Serialization type. Can also be JSON
 ring-dim = 2048 # Ring dimension. Must be power of two, e.g., 2^11 = 2048
 plaintext-mod = 40961
@@ -60,7 +61,7 @@ security-level = "128c" # classical bit measured security, e.g., secure as 128-b
 ek-needed = false # Should evaluation key be generated.
 mult-tech = "HPS" # Multiplication technique for BFV, can be HPS or BEHZ.
 delta-bits = "high" # Low (15) or high (50) bit count for \Delta in CKKS.
-noise-flooding = false # Should noise flooding be used for CKKS?
+noise-flooding = true # Should noise flooding be used for CKKS?
 
 
 [tool.flwr.federations]

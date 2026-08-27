@@ -40,6 +40,8 @@ from logreg_fhefedavg.fhe.general_client import (find_struct,
                                                  get_pds as get_pds_imp,
                                                  send_pds as send_pds_imp,
                                                  weights_blocks as weights_blocks_imp)
+from logreg_fhefedavg.fhe.noise_flooding_client import (dist_pds_no_server as dist_pds_no_server_imp,
+                                                        create_single_ciphertext as create_single_ciphertext_imp)
 
 
 # Flower ClientApp
@@ -99,7 +101,7 @@ def training(msg: Message, context: Context):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     training_start = time.time()
     # Fit model to the data.
-    train(model, trainloader, local_epochs, device)
+    # train(model, trainloader, local_epochs, device)
     end_time = time.time()
     weights = get_weights(model) 
     size = len(trainloader.dataset)
@@ -109,7 +111,7 @@ def training(msg: Message, context: Context):
     sec_type = context.run_config["sec-type"]
     
     # Lag path hvis den ikke eksisterer.
-    current_path = Path(f"./storage/logreg-{sec_type}-training-time")
+    current_path = Path(f"./storage/training-time")
     Path.mkdir(current_path,
                mode=0o777,
                parents=True, 
@@ -236,7 +238,7 @@ def evaluate(msg: Message, context: Context):
     print("Finished evaluation!")
 
     # Lag path hvis den ikke eksisterer.
-    current_path = Path("./storage/logreg-fhefedavg-evaluation-time")
+    current_path = Path("./storage/evaluation-time")
     Path.mkdir(current_path,
                mode=0o777,
                parents=True, 
@@ -280,15 +282,29 @@ def get_pds(msg: Message, context: Context):
 def send_pds(msg: Message, context: Context):
     return send_pds_imp(msg, context)
 
+@app.query("dist_pds_no_server")
+def dist_pds_no_server(msg: Message, context: Context):
+    return dist_pds_no_server_imp(msg, context)
+
 @app.query("weights_blocks")
 def weights_blocks(msg: Message, context: Context):
     return weights_blocks_imp(msg, context)
+
+@app.query("create_single_ciphertext")
+def create_single_ciphertext(msg: Message, context: Context):
+    return create_single_ciphertext_imp(msg, context)
 
 @app.query("start_forward_keygen")
 def start_forward_keygen(msg: Message, context: Context):
     ek_needed = context.run_config['ek-needed']
     # Aggresiv garbage collection.
     gc.collect()
+
+    import pprint
+    print("-----------------------------------------------------------------------------------")
+    print("start_forward_keygen in client_app.py")
+    pprint.pprint(msg.content.config_records['start-info'])
+    print("-----------------------------------------------------------------------------------")
 
     # If evaluation key is needed, call function which generates it.
     # If not then call function which does not generate it.

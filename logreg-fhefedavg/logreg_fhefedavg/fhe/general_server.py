@@ -22,7 +22,11 @@ if module_dir not in sys.path:
 from openfhe_help_functions import (fhe_deserialize_file,
                                     fhe_serialize_string, 
                                     fhe_deserialize_string)
-from keygen import server_keygen, server_keygen_noek
+from keygen import (server_keygen, 
+                    server_keygen_noek, 
+                    server_keygen_noise_flooding, 
+                    server_keygen_noise_flooding_noek)
+from logreg_fhefedavg.fhe.noise_flooding_server import create_noise_estimate
 
 
 def dec_without_server_multiple(grid, context, node_ids, ct_list, ST, pt_type):
@@ -181,7 +185,7 @@ def dec_without_server_multiple(grid, context, node_ids, ct_list, ST, pt_type):
     return weights[0]
 
 
-def server_fhe(grid, context, node_ids, participating, replies):
+def server_fhe(grid, context, node_ids, participating, replies, weights, round):
     """Handles all server-side fhe work.
     Starts by receiving update structure from all clients,
     does computation on each block, before reconstructing the weights structure.
@@ -196,6 +200,10 @@ def server_fhe(grid, context, node_ids, participating, replies):
         participating (list[int]): A list of ids of all nodes which participate in training.
 
         replies (list[Message]): List of Flower messages, replies from each client.
+
+        weights (list[np.ndarray]): Current weights.
+
+        round (int): Which round it is.
 
     Returns:
         list[np.ndarray]: New aggregated weights.
@@ -236,18 +244,51 @@ def server_fhe(grid, context, node_ids, participating, replies):
     ek_needed = context.run_config['ek-needed']
     # If evaluation key is needed, call function which generates it.
     # If not then call function which does not generate it.
-    if ek_needed:
-        start_time = time.time()
-        server_keygen(grid, context)
-        end_time = time.time()
+    if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
+        start_time_noise = time.time()
+        create_noise_estimate(grid, context, node_ids, ST)
+        end_time_noise = time.time()
+        current_path = Path("./storage/noise-estimate-time")
+        Path.mkdir(current_path,
+                    mode=0o777, 
+                    parents=True, 
+                    exist_ok=True)
+        Path.chmod(current_path, mode=0o777)
+        """Må nå finne ut hvor mange runs som er gjort hittil."""
+        num_dirs = len(list(current_path.iterdir()))
+        """Mappe for run skal ha navn 'run{num_dirs+1}',
+        altså første run for navn 'run1' osv."""
+        run_dir = f"run{num_dirs+1}/"
+        Path.mkdir(current_path/run_dir, mode=0o777, exist_ok=True)
+        Path.chmod(current_path/run_dir, mode=0o777)
+        Path.touch(current_path/run_dir/"time.txt", 0o777)
+        Path.chmod(current_path/run_dir/"time.txt", mode=0o777)
+        with open(Path(current_path/run_dir/"time.txt"), "a") as outfile:
+            outfile.write(str(end_time_noise-start_time_noise))
+        # If evaluation key is needed, generate it.
+        if ek_needed:
+            start_time = time.time()
+            server_keygen_noise_flooding(grid, context, "evaluation")
+            end_time = time.time()
+        else:
+            start_time = time.time()
+            server_keygen_noise_flooding_noek(grid, context, "evaluation")
+            end_time = time.time()
     else:
-        start_time = time.time()
-        server_keygen_noek(grid, context)
-        end_time = time.time()
+        # No noise flooding.
+        # If evaluation key is needed, generate it.
+        if ek_needed:
+            start_time = time.time()
+            server_keygen(grid, context)
+            end_time = time.time()
+        else:
+            start_time = time.time()
+            server_keygen_noek(grid, context)
+            end_time = time.time()
     log(INFO, "Key generation finished.")
 
     # Lag path hvis den ikke eksisterer.
-    current_path = Path("./storage/logreg-keygen-time")
+    current_path = Path("./storage/keygen-time")
     Path.mkdir(current_path,
                 mode=0o777, 
                 parents=True, 
@@ -356,7 +397,7 @@ def server_fhe(grid, context, node_ids, participating, replies):
         gc.collect()
 
         # Prepare for summation.
-        if SCHEME == "CKKS":
+        if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
             elem = cc.MakeCKKSPackedPlaintext([0])
         else:
             elem = cc.MakeCoefPackedPlaintext([0])
@@ -388,7 +429,7 @@ def server_fhe(grid, context, node_ids, participating, replies):
         # weights_sum = dec_with_server_multiple(grid, context, node_ids, weights_sum, cc, ST)
         weights_sum = dec_without_server_multiple(grid, context, node_ids, weights_sum, ST, "real")
         dec_stop = time.time()
-        current_path = Path(storage+"logreg-decryption-time")
+        current_path = Path(storage+"decryption-time")
         Path.mkdir(current_path,
                 mode=0o777, 
                 parents=True, 
