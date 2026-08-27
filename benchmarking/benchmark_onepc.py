@@ -239,12 +239,12 @@ for test in range(parameters["num_tests"]):
     starting_time = str(int(time.time()))
 
     time.sleep(3)
-    args1 = f"flwr run orgfedavg/ "
-    args2 = f"-c 'model=\"{parameters['model']}\"' "
+    args1 = f"flwr run logreg-fhefedavg/ "
+    args2 = f"-c 'model=\"{parameters['model']}\""
     if parameters["program"] == "fhefedavg":
-        if parameters['scheme'] == "CKKS-NF":
-            args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-ckks-nf/ "
-        args2 += f"'scheme=\"{parameters["scheme"]}\" num-clients={parameters["num_clients"]} "
+        # if parameters['scheme'] == "CKKS-NF":
+        #     args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-ckks-nf/ "
+        args2 += f" sec-type=\"fhefedavg\" scheme=\"{parameters["scheme"]}\" num-clients={parameters["num_clients"]} "
         args2 += f"security-level=\"{parameters['sec_level']}\" ring-dim={parameters['ring_dim']} "
         if parameters['scheme'] != "CKKS":
             args2 += f"num-coeffs={parameters['num_coeffs']} max-deg-int={parameters['max_deg_int']} "
@@ -258,9 +258,9 @@ for test in range(parameters["num_tests"]):
             args2 += f"no-polynomial-encoding=true "
         args2 += f"chunk-size={parameters['chunk_size']}' "
     elif parameters['program'] == 'secagg':
-        args2 += f"'max-weight={parameters['max_weight']}' "
+        args2 += f" max-weight={parameters['max_weight']}' "
     else:
-        args2 += f""
+        args2 += f"'"
     args3 = f"--federation-config 'options.num-supernodes={parameters["num_clients"]}'"
     args=args1+args2+args3
     print(f"Command to launch flwr run:\n{args}")
@@ -376,8 +376,8 @@ for test in range(parameters["num_tests"]):
         <time round 3>"""
         round_times = []
         for round in range(1,4):
-            training_path = f"./storage/key_store/node{i}/{parameters['model']}-{parameters['program']}-training-time/run{round}/time.txt"
-            evaluation_path = f"./storage/key_store/node{i}/{parameters['model']}-{parameters['program']}-evaluation-time/run{round}/time.txt"
+            training_path = f"./storage/key_store/node{i}/training-time/run{round}/time.txt"
+            evaluation_path = f"./storage/key_store/node{i}/evaluation-time/run{round}/time.txt"
             with open(training_path, "r") as infile:
                 line = infile.readline()
                 round_times.append(float(line))
@@ -402,16 +402,16 @@ for test in range(parameters["num_tests"]):
             with open(noise_path, "r") as infile:
                 line = infile.readline()
             noise_times.append(float(line))
-            keygen_path = f"./storage/key_store/server/{parameters['model']}-keygen-time/run{round}/time.txt"
+            keygen_path = f"./storage/key_store/server/keygen-time/run{round}/time.txt"
             with open(keygen_path, "r") as infile:
                 line = infile.readline()
             keygen_times.append(float(line))
-            decryption_path = f"./storage/key_store/server/{parameters['model']}-decryption-time/run{round}/time.txt"
+            decryption_path = f"./storage/key_store/server/decryption-time/run{round}/time.txt"
             with open(decryption_path, "r") as infile:
                 lines = infile.readlines()
                 lines = [float(line) for line in lines]
             dec_times.append(sum(lines))
-            block_path = f"./storage/key_store/server/{parameters['model']}-block-time/run{round}/time.txt"
+            block_path = f"./storage/key_store/server/block-time/run{round}/time.txt"
             with open(block_path, "r") as infile:
                 line = infile.readline()
             block_times.append(float(line))
@@ -423,16 +423,16 @@ for test in range(parameters["num_tests"]):
         dec_times = []
         block_times = []
         for round in range(1,4):
-            keygen_path = f"./storage/key_store/server/{parameters['model']}-keygen-time/run{round}/time.txt"
+            keygen_path = f"./storage/key_store/server/keygen-time/run{round}/time.txt"
             with open(keygen_path, "r") as infile:
                 line = infile.readline()
             keygen_times.append(float(line))
-            decryption_path = f"./storage/key_store/server/{parameters['model']}-decryption-time/run{round}/time.txt"
+            decryption_path = f"./storage/key_store/server/decryption-time/run{round}/time.txt"
             with open(decryption_path, "r") as infile:
                 lines = infile.readlines()
                 lines = [float(line) for line in lines]
             dec_times.append(sum(lines))
-            block_path = f"./storage/key_store/server/{parameters['model']}-block-time/run{round}/time.txt"
+            block_path = f"./storage/key_store/server/block-time/run{round}/time.txt"
             with open(block_path, "r") as infile:
                 line = infile.readline()
             block_times.append(float(line))
@@ -445,30 +445,30 @@ for test in range(parameters["num_tests"]):
                                  (runtime, laptop_ml_mean_times))
     
     """Slett filer som ble brukt til å lagre kjøretider, hvis de eksisterer."""
-    if os.path.isdir(f"./storage/key_store/server/{parameters['model']}-keygen-time/"):
-        shutil.rmtree(f"./storage/key_store/server/{parameters['model']}-keygen-time/")
-    if os.path.isdir(f"./storage/key_store/server/{parameters['model']}-block-time/"):
-        shutil.rmtree(f"./storage/key_store/server/{parameters['model']}-block-time/")
-    if os.path.isdir(f"./storage/key_store/server/{parameters['model']}-decryption-time/"):
-        shutil.rmtree(f"./storage/key_store/server/{parameters['model']}-decryption-time/")
+    if os.path.isdir(f"./storage/key_store/server/keygen-time/"):
+        shutil.rmtree(f"./storage/key_store/server/keygen-time/")
+    if os.path.isdir(f"./storage/key_store/server/block-time/"):
+        shutil.rmtree(f"./storage/key_store/server/block-time/")
+    if os.path.isdir(f"./storage/key_store/server/decryption-time/"):
+        shutil.rmtree(f"./storage/key_store/server/decryption-time/")
     if os.path.isdir(f"./storage/key_store/server/noise-estimate-time/"):
         shutil.rmtree(f"./storage/key_store/server/noise-estimate-time/")
-    if os.path.isdir(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node0/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node0/training-time/")
+    if os.path.isdir(f"./storage/key_store/node0/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node0/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node1/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node1/training-time/")
+    if os.path.isdir(f"./storage/key_store/node1/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node1/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node2/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node2/training-time/")
+    if os.path.isdir(f"./storage/key_store/node2/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node2/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node3/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node3/training-time/")
+    if os.path.isdir(f"./storage/key_store/node3/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node3/evaluation-time/")
         
     move_models(parameters, num_dirs)
    

@@ -481,15 +481,15 @@ def move_models(parameters, test_run, num_rounds = 3):
     if parameters['model'] == "imdb":
         # BERT is saved by transformers as a folder.
         for round in range(1, num_rounds+1):
-            if os.path.isdir(f"./storage/key_store/server/{parameters['model']}-tmp-r{round}"):
-                shutil.move(f"./storage/key_store/server/{parameters['model']}-tmp-r{round}",
-                            path/f'{parameters['model']}-tmp-r{round}')
+            if os.path.isdir(f"./storage/key_store/server/tmp-r{round}"):
+                shutil.move(f"./storage/key_store/server/tmp-r{round}",
+                            path/f'model-r{round}')
     else:
         # Both squeezenet and logreg are saved by pytorch as files.
         for round in range(1, num_rounds+1):
-            if os.path.exists(f"./storage/key_store/server/{parameters['model']}-tmp-r{round}"):
-                shutil.move(f"./storage/key_store/server/{parameters['model']}-tmp-r{round}",
-                            path/f'{parameters['model']}-tmp-r{round}')
+            if os.path.exists(f"./storage/key_store/server/tmp-r{round}"):
+                shutil.move(f"./storage/key_store/server/tmp-r{round}",
+                            path/f'model-r{round}')
         
 
 if __name__ == "__main__":
