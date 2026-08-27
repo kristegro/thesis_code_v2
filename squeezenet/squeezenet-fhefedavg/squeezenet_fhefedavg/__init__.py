@@ -1,1 +1,0 @@
-"""squeezenet-fhefedavg"""
