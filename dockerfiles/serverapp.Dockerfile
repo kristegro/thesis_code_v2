@@ -65,6 +65,6 @@ WORKDIR /app
 USER app
 
 # Copy help code into containers so they can access it.
-COPY --chown=app:app help_code/ ./
+COPY --chown=app:app decryption_docker/ ./
 
 ENTRYPOINT ["flwr-serverapp"]
