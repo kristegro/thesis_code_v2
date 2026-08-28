@@ -25,7 +25,7 @@ module_dir = os.path.abspath("/app")
 if module_dir not in sys.path:
     sys.path.insert(0, module_dir)
 
-from keygen import (start_forward_keygen_base, 
+from fhefedavg.fhe.keygen import (start_forward_keygen_base, 
                     continue_forward_keygen_base, 
                     end_forward_keygen_base,
                     continue_backward_keygen_base,

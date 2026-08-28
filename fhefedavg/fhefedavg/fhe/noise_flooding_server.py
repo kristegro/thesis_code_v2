@@ -16,11 +16,11 @@ module_dir = os.path.abspath("/app")
 if module_dir not in sys.path:
     sys.path.insert(0, module_dir)
 
-from openfhe_help_functions import (fhe_deserialize_file, 
-                                    fhe_deserialize_string, 
-                                    fhe_serialize_string)
-from keygen import (server_keygen_noise_flooding,
-                    server_keygen_noise_flooding_noek)
+from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file, 
+                                                  fhe_deserialize_string, 
+                                                  fhe_serialize_string)
+from fhefedavg.fhe.keygen import (server_keygen_noise_flooding,
+                                  server_keygen_noise_flooding_noek)
 
 
 def dec_completly_without_server(grid, context, node_ids, ct, ST):

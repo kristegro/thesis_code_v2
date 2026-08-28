@@ -15,9 +15,9 @@ from flwr.common.logger import log
 import numpy as np
 import openfhe as fhe
 
-from openfhe_help_functions import (fhe_deserialize_file,
-                                    fhe_deserialize_string, 
-                                    fhe_serialize_string)
+from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file,
+                                                  fhe_deserialize_string, 
+                                                  fhe_serialize_string)
 
 
 def dist_pds_no_server(msg: Message, context: Context):

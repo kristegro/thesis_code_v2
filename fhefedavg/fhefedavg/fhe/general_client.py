@@ -23,10 +23,10 @@ module_dir = os.path.abspath("/app")
 if module_dir not in sys.path:
     sys.path.insert(0, module_dir)
 
-from openfhe_help_functions import (fhe_deserialize_file,
-                                              fhe_deserialize_string, 
-                                              fhe_serialize_string)
-from pol_encoding import (encode_real, decode_real)
+from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file,
+                                                  fhe_deserialize_string, 
+                                                  fhe_serialize_string)
+from fhefedavg.encoding.pol_encoding import (encode_real, decode_real)
 
 
 def weights_to_ciphertext_bytes(weights: list[list[float]], cc, jpk, scheme):

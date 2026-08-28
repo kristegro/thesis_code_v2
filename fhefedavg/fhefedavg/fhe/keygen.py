@@ -11,10 +11,10 @@ from flwr.common.logger import log
 from flwr.server import Grid
 import openfhe as fhe
 
-from openfhe_help_functions import (fhe_deserialize_file, 
-                                    fhe_deserialize_string, 
-                                    fhe_serialize_string,
-                                    fhe_serialize_file)
+from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file, 
+                                                  fhe_deserialize_string, 
+                                                  fhe_serialize_string,
+                                                  fhe_serialize_file)
 
 def construct_cc(msg, context):
     """Construct a cryptocontext based on msg and context."""
