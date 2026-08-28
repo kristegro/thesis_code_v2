@@ -99,14 +99,9 @@ def create_noise_estimate(grid, context, node_ids, ST):
     ek_needed = context.run_config['ek-needed']
     # If evaluation key is needed, call function which generates it.
     # If not then call function which does not generate it.
-    print("Calling noise flooding from create_noise estimate")
     if ek_needed:
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("calling noise_flooding")
         server_keygen_noise_flooding(grid, context, "estimate")
     else:
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("calling noise_flooding_noek")
         server_keygen_noise_flooding_noek(grid, context, "estimate")
     log(INFO, "First key generation finished.")
 

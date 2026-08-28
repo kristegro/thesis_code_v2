@@ -326,12 +326,6 @@ def start_forward_keygen(msg: Message, context: Context):
     # Aggresiv garbage collection.
     gc.collect()
 
-    import pprint
-    print("-----------------------------------------------------------------------------------")
-    print("start_forward_keygen in client_app.py")
-    pprint.pprint(msg.content.config_records['start-info'])
-    print("-----------------------------------------------------------------------------------")
-
     # If evaluation key is needed, call function which generates it.
     # If not then call function which does not generate it.
     if ek_needed:
