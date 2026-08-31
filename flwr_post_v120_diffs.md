@@ -3,7 +3,7 @@
 - Strategies updated to use Message objects instead. See https://flower.ai/docs/framework/how-to-upgrade-to-message-api.html
 - ServerApp and ClientApp replaced with SuperExec, see https://flower.ai/docs/framework/explanation-flower-architecture.html.
     - Need to replace docker images with SuperExec version. Might only need one image instead of two.
-- Imports from ``flwr.server, flwr.client, flwr.common`` is changed to ``flwer.serverapp, flwr.clientapp, flwr.app`` respectively.
+- Imports from ``flwr.server, flwr.client, flwr.common`` is changed to ``flwr.serverapp, flwr.clientapp, flwr.app`` respectively.
 
 ## v1.22
 
@@ -35,7 +35,7 @@
 
 ## v1.28
 
-- Nothing important.
+- Apparently, more changes were made to syntax for new configuration: https://flower.ai/docs/framework/how-to-upgrade-to-flower-1.28.html
 
 ## v1.29
 
