@@ -1,12 +1,6 @@
 services:
-  # Create service to build serverapp image for keygen so that it is only done once.
-  serverapp-task-build:
+  # Create service to build superexec image so that it is only done once.
+  superexec-build:
     build: 
       context: ../
-      dockerfile: dockerfiles/serverapp.Dockerfile
-
-  # Create service to build clientapp image for keygen so that it is only done once.
-  clientapp-task-build:
-    build: 
-      context: ../
-      dockerfile: dockerfiles/clientapp.Dockerfile
+      dockerfile: dockerfiles/superexec.Dockerfile

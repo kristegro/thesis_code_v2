@@ -37,7 +37,7 @@ services:
 
   # create SuperLink service for computation/master server
   superlink:
-    image: flwr/superlink:1.20.0
+    image: flwr/superlink:1.35.0
     command:
       - --insecure
       - --isolation
@@ -48,12 +48,14 @@ services:
 
   # create ServerApp service for computation/master server
   serverapp:
-    image: dockerfiles-serverapp-task-build
+    image: superexec-build
     ports:
       - 8000:8000
     command:
       - --insecure
-      - --serverappio-api-address
+      - --plugin-type
+      - serverapp
+      - --appio-api-address
       - superlink:9091
     depends_on:
       - superlink
@@ -67,7 +69,7 @@ services:
 
   # create SuperNode service for client 0.
   laptop-supernode-0:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
@@ -83,10 +85,12 @@ services:
   
   # create ClientApp service for client 0.
   laptop-clientapp-0:
-    image: dockerfiles-clientapp-task-build
+    image: superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - laptop-supernode-0:9094
     # deploy:
     #   resources:
@@ -108,10 +112,9 @@ services:
 
   # create SuperNode service for client 1.
   laptop-supernode-1:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
-      - --insecure
-      - --superlink
+      - --insecure- --superlink
       - superlink:9092
       - --clientappio-api-address
       - 0.0.0.0:9095
@@ -124,10 +127,12 @@ services:
 
   # create ClientApp service for client 1.
   laptop-clientapp-1:
-    image: dockerfiles-clientapp-task-build
+    image: superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - laptop-supernode-1:9095
     # deploy:
     #   resources:

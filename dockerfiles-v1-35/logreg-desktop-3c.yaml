@@ -37,7 +37,7 @@ services:
 
   # create SuperNode service for client 0.
   desktop-supernode-0:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
@@ -51,10 +51,12 @@ services:
 
   # create ClientApp service for client 0.
   desktop-clientapp-0:
-    image: dockerfiles-clientapp-task-build
+    image: superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - desktop-supernode-0:9095
     # deploy:
     #   resources:
@@ -73,7 +75,7 @@ services:
 
   # create SuperNode service for client 1.
   desktop-supernode-1:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
@@ -87,10 +89,12 @@ services:
 
   # create ClientApp service for client 1.
   desktop-clientapp-1:
-    image: dockerfiles-clientapp-task-build
+    image: superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - desktop-supernode-1:9096
     # deploy:
     #   resources:

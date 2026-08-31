@@ -1,4 +1,4 @@
-FROM flwr/serverapp:1.20.0-py3.12-ubuntu24.04
+FROM flwr/superexec:1.35.0-py3.12-ubuntu24.04
 
 WORKDIR /app
 # COPY --chown=app:app pandas-example/pyproject.toml .
@@ -58,6 +58,7 @@ RUN cd openfhe-development \
 ENV LD_LIBRARY_PATH=/usr/local/lib 
 #:${LD_LIBRARY_PATH}
 
+
 RUN pip3 install openfhe==1.5.0.0.24.4
 
 # Switch back to correct user before entrypoint.
@@ -67,4 +68,4 @@ USER app
 # Copy help code into containers so they can access it.
 COPY --chown=app:app decryption_docker/ ./
 
-ENTRYPOINT ["flwr-serverapp"]
+ENTRYPOINT ["flower-superexec"]
