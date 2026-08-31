@@ -6,19 +6,19 @@ WORKDIR /app
 #     && python -m pip install -U --no-cache-dir .
 
 # Copy pyproject.toml to install dependencies.
-# COPY --chown=app:app help_code/flwr-decryption/pyproject.toml .
+COPY --chown=app:app fhefedavg/pyproject.toml .
 
 # Copy lockfile to install dependencies.
 COPY --chown=app:app dockerfiles/requirements.txt .
 
-# Install dependencies declared in pyproject.toml
-# RUN python -m pip install -U --no-cache-dir .
-
 # Run commands as root to avoid permission denied?
 USER root
 
+# Install dependencies declared in pyproject.toml
+RUN python -m pip install -U --no-cache-dir .
+
 # Install dependencies from lockfile requirements.txt
-RUN python -m pip install -r ./requirements.txt
+# RUN python -m pip install -r ./requirements.txt
 
 # Set environment variables to non-interactive (this prevents some prompts)
 ENV DEBIAN_FRONTEND=noninteractive

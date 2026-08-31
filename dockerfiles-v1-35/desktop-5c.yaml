@@ -45,7 +45,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9097
+      - '9097'
       - --isolation
       - process
       - --node-config
@@ -85,7 +85,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9098
+      - '9098'
       - --isolation
       - process
       - --node-config

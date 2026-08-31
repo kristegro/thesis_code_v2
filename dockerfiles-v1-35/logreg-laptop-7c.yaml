@@ -45,7 +45,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9091
+      - '9091'
     ports:
       - 9092:9092
       - 9093:9093
@@ -81,7 +81,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9094
+      - '9094'
       - --isolation
       - process
       - --node-config
@@ -126,7 +126,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9095
+      - '9095'
       - --isolation
       - process
       - --node-config
@@ -168,7 +168,7 @@ services:
       - --host
       - '0.0.0.0'
       - --port
-      - 9096
+      - '9096'
       - --isolation
       - process
       - --node-config
