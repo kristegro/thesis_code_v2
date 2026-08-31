@@ -242,7 +242,7 @@ def get_pds(msg: Message, context: Context):
         partial decryption files."""
         # Launch superlink.
         args_1 = f'flower-superlink --insecure '
-        args_2 = f'--serverappio-api-address {addr}:10091 ' 
+        args_2 = f'--host {addr} --port 10091 ' 
         args_3 = f'--fleet-api-address {addr}:10092 '
         args_4 = f'--exec-api-address {addr}:10093'
         args = args_1 + args_2 + args_3 + args_4
@@ -285,7 +285,7 @@ def get_pds(msg: Message, context: Context):
         args_1 = f'flower-supernode --insecure '
         args_2 = f'--superlink {addr}:10092 '
         args_3 = f"--node-config 'id={id}' "
-        args_4 = f'--clientappio-api-address 0.0.0.0:{10000+id}'
+        args_4 = f'--host 0.0.0.0 --port {10000+id}'
         print(f"Command to launch supernode: \n{args_1+args_2+args_3+args_4}")
         args = args_1 + args_2 + args_3 + args_4
         super = subprocess.Popen(args=args,
