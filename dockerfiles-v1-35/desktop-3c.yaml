@@ -53,7 +53,7 @@ services:
 
   # create ClientApp service for client 0.
   desktop-clientapp-0:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     command:
       - --insecure
       - --plugin-type

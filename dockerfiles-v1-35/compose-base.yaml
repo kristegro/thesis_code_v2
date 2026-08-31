@@ -3,4 +3,4 @@ services:
   superexec-build:
     build: 
       context: ../
-      dockerfile: dockerfiles/superexec.Dockerfile
+      dockerfile: dockerfiles-v1-35/superexec.Dockerfile

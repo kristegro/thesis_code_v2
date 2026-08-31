@@ -52,7 +52,7 @@ services:
 
   # create ServerApp service for computation/master server
   serverapp:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     ports:
       - 8000:8000
     command:
@@ -91,7 +91,7 @@ services:
   
   # create ClientApp service for client 0.
   laptop-clientapp-0:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     command:
       - --insecure
       - --plugin-type
@@ -136,7 +136,7 @@ services:
 
   # create ClientApp service for client 1.
   laptop-clientapp-1:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     command:
       - --insecure
       - --plugin-type
@@ -178,7 +178,7 @@ services:
 
   # create ClientApp service for client 2.
   laptop-clientapp-2:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     command:
       - --insecure
       - --plugin-type
@@ -220,7 +220,7 @@ services:
 
   # create ClientApp service for client 3.
   laptop-clientapp-3:
-    image: superexec-build
+    image: dockerfiles-v1-35-superexec-build
     command:
       - --insecure
       - --plugin-type
