@@ -9,7 +9,7 @@ import glob
 import multiprocessing.connection as mpc
 import time
 
-from flwr.common import (Context, 
+from flwr.app import (Context, 
                          Message, 
                          ConfigRecord, 
                          RecordDict, 

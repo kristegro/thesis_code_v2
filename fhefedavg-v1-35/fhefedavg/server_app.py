@@ -7,13 +7,13 @@ import gc # garbage collection
 from math import ceil
 from pathlib import Path
 
-from flwr.common import (Context,
+from flwr.app import (Context,
                          RecordDict, 
                          Message, 
                          ConfigRecord,
                          ArrayRecord)
 from flwr.common.logger import log
-from flwr.server import Grid, ServerApp
+from flwr.serverapp import Grid, ServerApp
 import torch
 from prometheus_client import Gauge, start_http_server, Counter
 

@@ -1,7 +1,7 @@
 import multiprocessing.connection as mpc
 
-from flwr.client import ClientApp
-from flwr.common import (Context, 
+from flwr.clientapp import ClientApp
+from flwr.app import (Context, 
                          Message,
                          RecordDict,
                          ConfigRecord)

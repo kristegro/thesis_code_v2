@@ -2,12 +2,12 @@ import time
 from logging import INFO
 import multiprocessing.connection as mpc
 
-from flwr.common import (Context,
+from flwr.app import (Context,
                          RecordDict, 
                          Message, 
                          ConfigRecord)
 from flwr.common.logger import log
-from flwr.server import Grid, ServerApp
+from flwr.serverapp import Grid, ServerApp
 
 
 # Create ServerApp

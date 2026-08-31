@@ -3,12 +3,12 @@ import sys
 from logging import INFO
 import time
 
-from flwr.common import (Context, 
+from flwr.app import (Context, 
                          Message, 
                          ConfigRecord, 
                          RecordDict)
 from flwr.common.logger import log
-from flwr.server import Grid
+from flwr.serverapp import Grid
 import openfhe as fhe
 
 from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file, 
