@@ -1,0 +1,182 @@
+services:
+  # create Prometheus service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../storage/prometheus-storage:/prometheus
+    depends_on:
+      - cadvisor
+
+  # create cAdvisor service
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  # create SuperLink service for computation/master server
+  superlink:
+    image: flwr/superlink:1.20.0
+    command:
+      - --insecure
+      - --isolation
+      - process
+    ports:
+      - 9092:9092
+      - 9093:9093
+
+  # create ServerApp service for computation/master server
+  serverapp:
+    image: dockerfiles-serverapp-task-build
+    ports:
+      - 8000:8000
+    command:
+      - --insecure
+      - --serverappio-api-address
+      - superlink:9091
+    depends_on:
+      - superlink
+    volumes:
+      - type: bind
+        source: ../storage/key_store/server/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/
+
+  # create SuperNode service for client 0.
+  laptop-supernode-0:
+    image: flwr/supernode:1.20.0
+    command:
+      - --insecure
+      - --superlink
+      - superlink:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9094
+      - --isolation
+      - process
+      - --node-config
+      - 'partition-id=0 num-partitions=3 addr="0.0.0.0"'
+    depends_on:
+      - superlink
+  
+  # create ClientApp service for client 0.
+  laptop-clientapp-0:
+    image: dockerfiles-clientapp-task-build
+    command:
+      - --insecure
+      - --clientappio-api-address
+      - laptop-supernode-0:9094
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1"
+    stop_signal: SIGINT
+    depends_on:
+      - laptop-supernode-0
+    volumes:
+      - type: bind
+        source: ../storage/key_store/node0/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/
+    ports:
+      - 10092:10092
+      - 10093:10093
+
+  # create SuperNode service for client 1.
+  laptop-supernode-1:
+    image: flwr/supernode:1.20.0
+    command:
+      - --insecure
+      - --superlink
+      - superlink:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9095
+      - --isolation
+      - process
+      - --node-config
+      - 'partition-id=1 num-partitions=3 addr="192.168.68.103"'
+    depends_on:
+      - superlink
+
+  # create ClientApp service for client 1.
+  laptop-clientapp-1:
+    image: dockerfiles-clientapp-task-build
+    command:
+      - --insecure
+      - --clientappio-api-address
+      - laptop-supernode-1:9095
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1"
+    stop_signal: SIGINT
+    depends_on:
+      - laptop-supernode-1
+    volumes:
+      - type: bind
+        source: ../storage/key_store/node1/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/
+
+# create SuperNode service for client 2.
+  laptop-supernode-2:
+    image: flwr/supernode:1.20.0
+    command:
+      - --insecure
+      - --superlink
+      - superlink:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9096
+      - --isolation
+      - process
+      - --node-config
+      - 'partition-id=2 num-partitions=3 addr="192.168.68.103"'
+    depends_on:
+      - superlink
+
+  # create ClientApp service for client 2.
+  laptop-clientapp-2:
+    image: dockerfiles-clientapp-task-build
+    command:
+      - --insecure
+      - --clientappio-api-address
+      - laptop-supernode-2:9096
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1"
+    stop_signal: SIGINT
+    depends_on:
+      - laptop-supernode-2
+    volumes:
+      - type: bind
+        source: ../storage/key_store/node2/
+        target: /app/storage/
+      - type: bind
+        source: ../storage/results_docker/
+        target: /app/result_files/
