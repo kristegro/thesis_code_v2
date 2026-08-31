@@ -42,8 +42,10 @@ services:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9098
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9098
       - --isolation
       - process
       - --node-config
@@ -80,8 +82,10 @@ services:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9099
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9099
       - --isolation
       - process
       - --node-config
@@ -118,8 +122,10 @@ services:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9100
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9100
       - --isolation
       - process
       - --node-config

@@ -41,6 +41,10 @@ services:
       - --insecure
       - --isolation
       - process
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9091
     ports:
       - 9092:9092
       - 9093:9093
@@ -73,8 +77,10 @@ services:
       - --insecure
       - --superlink
       - superlink:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9094
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9094
       - --isolation
       - process
       - --node-config
@@ -116,8 +122,10 @@ services:
       - --insecure
       - --superlink
       - superlink:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9095
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9095
       - --isolation
       - process
       - --node-config
@@ -156,8 +164,10 @@ services:
       - --insecure
       - --superlink
       - superlink:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9096
+      - --host
+      - '0.0.0.0'
+      - --port
+      - 9096
       - --isolation
       - process
       - --node-config
