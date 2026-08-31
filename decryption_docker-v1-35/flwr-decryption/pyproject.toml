@@ -34,10 +34,10 @@ num-ct = 0
 ser-type = "BINARY"
 num-clients = 2 # Number of clients expected to join.
 
-[tool.flwr.federations]
-default = "localhost"
+# [tool.flwr.federations]
+# default = "localhost"
 
-[tool.flwr.federations.localhost]
-options.num-supernodes = 2
-address = "0.0.0.0:10093" # Address and port that flwr run should communicate with.
-insecure = true
+# [tool.flwr.federations.localhost]
+# options.num-supernodes = 2
+# address = "0.0.0.0:10093" # Address and port that flwr run should communicate with.
+# insecure = true
