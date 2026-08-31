@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y \
 # Clone and build OpenFHE-development
 RUN git clone https://github.com/openfheorg/openfhe-development.git && \
     cd openfhe-development && \
-    git checkout tags/v1.5.0
+    git checkout tags/v1.5.1
 # RUN git tag
 # RUN git checkout tags/v1.5.0
 
@@ -59,7 +59,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 #:${LD_LIBRARY_PATH}
 
 
-RUN pip3 install openfhe==1.5.0.0.24.4
+RUN pip3 install openfhe==1.5.1.0.24.4
 
 # Switch back to correct user before entrypoint.
 WORKDIR /app
