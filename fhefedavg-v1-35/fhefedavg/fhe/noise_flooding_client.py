@@ -93,8 +93,8 @@ def dist_pds_no_server(msg: Message, context: Context):
         i essaykoden med funksjonen is_port_in_use."""
         args1 = f'flwr run flwr-decryption-no-server/ '
         args2 = f"-c 'num-ct=1 num-clients={num_clients}' "
-        args3 = f"--federation-config 'options.num-supernodes={num_clients}'"
-        args = args1 + args2 + args3
+        # args3 = f"--federation-config 'options.num-supernodes={num_clients}'"
+        args = args1 + args2 #+ args3
         log(INFO, f"Command for flwr run: {args}")
         flwrrun = subprocess.Popen(args=args,
                                    shell=True,

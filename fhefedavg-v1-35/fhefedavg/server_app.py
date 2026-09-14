@@ -314,6 +314,7 @@ def main(grid: Grid, context: Context) -> None:
 
     # Increment done_counter to show that everything is done.
     done_counter.inc()
+    time.sleep(600)
 
 
     """Various bits of code to verify correctness of results."""
