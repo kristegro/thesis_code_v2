@@ -203,7 +203,7 @@ sent_net_query = 'sum(rate(container_network_transmit_bytes_total{name!="",name!
 
 """Set up environment so that flwr run can actually be run."""
 env = os.environ.copy()
-env["PATH"] = env["PATH"] + os.pathsep + "/home/krist/.venv/bin"
+env["PATH"] = env["PATH"] + os.pathsep + "/home/krist/thesis_code_v2/.venv/bin"
 
 # Run to check:
 result = subprocess.run(
@@ -261,8 +261,7 @@ for test in range(parameters["num_tests"]):
         args2 += f" max-weight={parameters['max_weight']}' "
     else:
         args2 += f"' "
-    args3 = f"--federation-config 'options.num-supernodes={parameters["num_clients"]}'"
-    args=args1+args2+args3
+    args = args1+args2
     print(f"Command to launch flwr run:\n{args}")
     proc = subprocess.run(args=args, shell=True, env=env)
 

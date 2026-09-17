@@ -1,7 +1,7 @@
 import multiprocessing.connection as mpc
 
-from flwr.client import ClientApp
-from flwr.common import (Context, 
+from flwr.clientapp import ClientApp
+from flwr.app import (Context, 
                          Message,
                          RecordDict)
 
@@ -20,7 +20,7 @@ def send_pds(msg: Message, context: Context):
     pds = msg.content.config_records['pds']['pds']
     
     print("Sending pds to parent and reply to server.")
-    client = mpc.Client(("127.0.0.1", 12340+id))
+    client = mpc.Client(("0.0.0.0", 12340+id))
     client.send(pds)
 
     # Give empty reply to server.

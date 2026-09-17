@@ -1,7 +1,7 @@
 import multiprocessing.connection as mpc
 
-from flwr.client import ClientApp
-from flwr.common import (Context, 
+from flwr.clientapp import ClientApp
+from flwr.app import (Context, 
                          Message,
                          RecordDict,
                          ConfigRecord)
@@ -15,7 +15,7 @@ app = ClientApp()
 def pds_to_server(msg: Message, context: Context):
     print("Receiving partial decryption from parent.")
     id = context.node_config['id']
-    client = mpc.Client(("127.0.0.1", 12340+id))
+    client = mpc.Client(("0.0.0.0", 12340+id))
     pd = client.recv()
     
     print("Sending reply to server.")
@@ -37,7 +37,7 @@ def pds_from_server(msg: Message, context: Context):
     pds = msg.content.config_records['pds']['pds']
     
     print("Sending pds to parent and reply to server.")
-    client = mpc.Client(("127.0.0.1", 12340+id))
+    client = mpc.Client(("0.0.0.0", 12340+id))
     client.send(pds)
 
     # Give empty reply to server.

@@ -6,7 +6,7 @@ from random import sample
 import gc # garbage collection
 from pathlib import Path
 
-from flwr.common import (RecordDict, 
+from flwr.app import (RecordDict, 
                          Message, 
                          ConfigRecord,
                          ArrayRecord)

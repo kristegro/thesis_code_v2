@@ -6,8 +6,8 @@ import gc # garbage collection
 import time
 from pathlib import Path
 
-from flwr.client import ClientApp
-from flwr.common import (Context, 
+from flwr.clientapp import ClientApp
+from flwr.app import (Context, 
                          Message, 
                          ConfigRecord, 
                          RecordDict, 

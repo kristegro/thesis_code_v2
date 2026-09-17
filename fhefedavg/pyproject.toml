@@ -8,11 +8,15 @@ version = "1.0.0"
 description = ""
 license = "Apache-2.0"
 dependencies = [
-    "flwr[simulation]==1.20.0",
-    "flwr-datasets[vision]==0.5.0",
+    "flwr[simulation]==1.35.0",
+    "flwr-datasets[vision]",
     "torch==2.8.0",
     "torchvision==0.23.0",
-    "prometheus_client>=0.19.0"
+    "prometheus_client>=0.19.0",
+    "transformers>=4.30.0,<5.0",
+    "evaluate>=0.4.0,<1.0",
+    "datasets>=4.0",
+    "scikit-learn>=1.6.1, <2.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -69,10 +73,10 @@ delta-bits = "high" # Low (15) or high (50) bit count for \Delta in CKKS.
 noise-flooding = true # Should noise flooding be used for CKKS?
 
 
-[tool.flwr.federations]
-default = "localhost"
+# [tool.flwr.federations]
+# default = "localhost"
 
-[tool.flwr.federations.localhost]
-options.num-supernodes = 3
-address = "127.0.0.1:9093" # Address and port that flwr run should communicate with.
-insecure = true
+# [tool.flwr.federations.localhost]
+# options.num-supernodes = 3
+# address = "127.0.0.1:9093" # Address and port that flwr run should communicate with.
+# insecure = true

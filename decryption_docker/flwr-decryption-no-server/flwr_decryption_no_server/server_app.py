@@ -2,12 +2,12 @@ import time
 from logging import INFO
 import multiprocessing.connection as mpc
 
-from flwr.common import (Context,
+from flwr.app import (Context,
                          RecordDict, 
                          Message, 
                          ConfigRecord)
 from flwr.common.logger import log
-from flwr.server import Grid, ServerApp
+from flwr.serverapp import Grid, ServerApp
 
 
 # Create ServerApp
@@ -24,7 +24,7 @@ def main(grid: Grid, context: Context) -> None:
         time.sleep(2)
 
     print("Receiving partial decryptions from parents.")
-    client = mpc.Client(("127.0.0.1", 12360))
+    client = mpc.Client(("0.0.0.0", 12360))
     """pds is list of bytes.
     Each bytes object corresponds to a different partial decryption."""
     pd = client.recv()
@@ -69,7 +69,7 @@ def main(grid: Grid, context: Context) -> None:
     grid.send_and_receive(messages)
 
     print("Opening connection to parent.")    
-    client = mpc.Client(("127.0.0.1", 12360))
+    client = mpc.Client(("0.0.0.0", 12360))
     client.send(pds)
     """When connection is opened, parent client
     knows that subserver is done and can be shut down."""
