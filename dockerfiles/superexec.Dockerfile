@@ -1,24 +1,22 @@
-FROM flwr/serverapp:1.20.0-py3.12-ubuntu24.04
+FROM flwr/superexec:1.35.0-py3.12-ubuntu24.04
 
 WORKDIR /app
-# COPY --chown=app:app pandas-example/pyproject.toml .
-# RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
-#     && python -m pip install -U --no-cache-dir .
 
 # Copy pyproject.toml to install dependencies.
-# COPY --chown=app:app help_code/flwr-decryption/pyproject.toml .
+COPY --chown=app:app fhefedavg/pyproject.toml .
 
 # Copy lockfile to install dependencies.
-COPY --chown=app:app dockerfiles/requirements.txt .
-
-# Install dependencies declared in pyproject.toml
-# RUN python -m pip install -U --no-cache-dir .
+# COPY --chown=app:app dockerfiles/requirements.txt .
 
 # Run commands as root to avoid permission denied?
 USER root
 
+# Install dependencies declared in pyproject.toml
+RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
+    && python -m pip install -U --no-cache-dir .
+
 # Install dependencies from lockfile requirements.txt
-RUN python -m pip install -r ./requirements.txt
+# RUN python -m pip install -r ./requirements.txt
 
 # Set environment variables to non-interactive (this prevents some prompts)
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,7 +40,7 @@ RUN apt-get update && apt-get install -y \
 # Clone and build OpenFHE-development
 RUN git clone https://github.com/openfheorg/openfhe-development.git && \
     cd openfhe-development && \
-    git checkout tags/v1.5.0
+    git checkout tags/v1.5.1
 # RUN git tag
 # RUN git checkout tags/v1.5.0
 
@@ -58,7 +56,8 @@ RUN cd openfhe-development \
 ENV LD_LIBRARY_PATH=/usr/local/lib 
 #:${LD_LIBRARY_PATH}
 
-RUN pip3 install openfhe==1.5.0.0.24.4
+
+RUN pip3 install openfhe==1.5.1.0.24.4
 
 # Switch back to correct user before entrypoint.
 WORKDIR /app
@@ -67,4 +66,7 @@ USER app
 # Copy help code into containers so they can access it.
 COPY --chown=app:app decryption_docker/ ./
 
-ENTRYPOINT ["flwr-serverapp"]
+# Copy flwr config.toml into container so that superlinks launched from inside container uses correct ports????
+COPY --chown=app:app dockerfiles/flwr_config.toml /app/.flwr/config.toml
+
+ENTRYPOINT ["flower-superexec"]

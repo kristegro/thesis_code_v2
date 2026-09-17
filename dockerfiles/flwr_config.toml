@@ -1,0 +1,9 @@
+[superlink]
+default = "local"
+
+[superlink.supergrid]
+address = "supergrid.flower.ai"
+
+[superlink.local]
+address = "127.0.0.1:10093" # Address and port that flwr run should communicate with.
+insecure = true

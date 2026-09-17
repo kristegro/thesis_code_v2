@@ -37,13 +37,15 @@ services:
 
   # create SuperNode service for client 0.
   desktop-supernode-0:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9096
+      - --host
+      - '0.0.0.0'
+      - --port
+      - '9096'
       - --isolation
       - process
       - --node-config
@@ -51,10 +53,12 @@ services:
 
   # create ClientApp service for client 0.
   desktop-clientapp-0:
-    image: dockerfiles-clientapp-task-build
+    image: dockerfiles-superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - desktop-supernode-0:9096
     # deploy:
     #   resources:
@@ -73,13 +77,15 @@ services:
 
   # create SuperNode service for client 1.
   desktop-supernode-1:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9097
+      - --host
+      - '0.0.0.0'
+      - --port
+      - '9097'
       - --isolation
       - process
       - --node-config
@@ -87,10 +93,12 @@ services:
 
   # create ClientApp service for client 1.
   desktop-clientapp-1:
-    image: dockerfiles-clientapp-task-build
+    image: dockerfiles-superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - desktop-supernode-1:9097
     # deploy:
     #   resources:
@@ -109,13 +117,15 @@ services:
 
   # create SuperNode service for client 2.
   desktop-supernode-2:
-    image: flwr/supernode:1.20.0
+    image: flwr/supernode:1.35.0
     command:
       - --insecure
       - --superlink
       - 192.168.68.103:9092
-      - --clientappio-api-address
-      - 0.0.0.0:9098
+      - --host
+      - '0.0.0.0'
+      - --port
+      - '9098'
       - --isolation
       - process
       - --node-config
@@ -123,10 +133,12 @@ services:
 
   # create ClientApp service for client 2.
   desktop-clientapp-2:
-    image: dockerfiles-clientapp-task-build
+    image: dockerfiles-superexec-build
     command:
       - --insecure
-      - --clientappio-api-address
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
       - desktop-supernode-2:9098
     # deploy:
     #   resources:
