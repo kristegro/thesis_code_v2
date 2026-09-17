@@ -3,20 +3,20 @@ FROM flwr/superexec:1.35.0-py3.12-ubuntu24.04
 WORKDIR /app
 
 # Copy pyproject.toml to install dependencies.
-COPY --chown=app:app fhefedavg/pyproject.toml .
+# COPY --chown=app:app fhefedavg/pyproject.toml .
 
 # Copy lockfile to install dependencies.
-# COPY --chown=app:app dockerfiles/requirements.txt .
+COPY --chown=app:app dockerfiles/requirements.txt .
 
 # Run commands as root to avoid permission denied?
 USER root
 
 # Install dependencies declared in pyproject.toml
-RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
-    && python -m pip install -U --no-cache-dir .
+# RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
+#     && python -m pip install -U --no-cache-dir .
 
 # Install dependencies from lockfile requirements.txt
-# RUN python -m pip install -r ./requirements.txt
+RUN python -m pip install -r ./requirements.txt
 
 # Set environment variables to non-interactive (this prevents some prompts)
 ENV DEBIAN_FRONTEND=noninteractive
