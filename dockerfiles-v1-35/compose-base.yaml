@@ -1,6 +1,0 @@
-services:
-  # Create service to build superexec image so that it is only done once.
-  superexec-build:
-    build: 
-      context: ../
-      dockerfile: dockerfiles-v1-35/superexec.Dockerfile
