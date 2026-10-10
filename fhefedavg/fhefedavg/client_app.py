@@ -109,7 +109,7 @@ def training(msg: Message, context: Context):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     training_start = time.time()
     # Fit model to the data.
-    # train(model, trainloader, local_epochs, device)
+    train(model, trainloader, local_epochs, device)
     end_time = time.time()
     weights = get_weights(model) 
     size = len(trainloader.dataset)
