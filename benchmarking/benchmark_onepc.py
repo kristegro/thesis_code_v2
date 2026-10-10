@@ -31,6 +31,10 @@ parser.add_argument('scheme', metavar='scheme', type=str,
                     help='Encryption scheme to use',
                     choices=['CKKS', 'CKKS-NF', 'BGV', 'BFV', 'None'],
                     default=None)
+parser.add_argument('encoding', metavar='encoding', type=str,
+                    help='Real number encoding to use for BGV/BFV',
+                    choices=['BBB', 'NS', 'None'],
+                    default=None)
 parser.add_argument('sec_level', metavar='sec_level', type=str,
                     help='Security level to achieve',
                     choices=['128c', '256c', 'None'],
@@ -76,7 +80,7 @@ parser.add_argument('delta_bits', metavar='delta_bits', type=str,
 
 parameters = dict(vars(parser.parse_args()))
 
-# Configurer integer polynomial degree for ulike modeller.
+# Configure integer polynomial degree for different models.
 if parameters['model'] == 'bert':
     if parameters["num_clients"] == 3:
         parameters["max_deg_int"] = 9
@@ -93,29 +97,31 @@ elif parameters['model'] == 'logreg':
     elif parameters["num_clients"] in [5,7]:
         parameters["max_deg_int"] = 8
 
-# Konfigurer max-weight parameter for secagg.
-if parameters['program'] == "secagg":
-    if parameters['model'] == "bert":
-        if parameters['num_clients'] == 3:
-            parameters['max_weight'] = 15001
-        elif parameters['num_clients'] == 5:
-            parameters['max_weight'] = 9000
-        elif parameters['num_clients'] == 7:
-            parameters['max_weight'] = 6429
-    elif parameters['model'] == "squeezenet":
-        if parameters['num_clients'] == 3:
-            parameters['max_weight'] = 12000
-        elif parameters['num_clients'] == 5:
-            parameters['max_weight'] = 7200
-        elif parameters['num_clients'] == 7:
-            parameters['max_weight'] = 5143
-    elif parameters['model'] == "logreg":
-        if parameters['num_clients'] == 3:
-            parameters['max_weight'] = 12000
-        elif parameters['num_clients'] == 5:
-            parameters['max_weight'] = 4800
-        elif parameters['num_clients'] == 7:
-            parameters['max_weight'] = 3429
+# Configure scaling factor and bound for normalized scaling with different models.
+# Bounds are found in thesis, section 4.4.
+if parameters['model'] == "bert":
+    if parameters['num_clients'] == 3:
+        parameters['bound'] = 15001
+    elif parameters['num_clients'] == 5:
+        parameters['bound'] = 9000
+    elif parameters['num_clients'] == 7:
+        parameters['bound'] = 6429
+elif parameters['model'] == "squeezenet":
+    if parameters['num_clients'] == 3:
+        parameters['bound'] = 12000
+    elif parameters['num_clients'] == 5:
+        parameters['bound'] = 7200
+    elif parameters['num_clients'] == 7:
+        parameters['bound'] = 5143
+elif parameters['model'] == "logreg":
+    if parameters['num_clients'] == 3:
+        parameters['bound'] = 12000
+    elif parameters['num_clients'] == 5:
+        parameters['bound'] = 4800
+    elif parameters['num_clients'] == 7:
+        parameters['bound'] = 3429
+# scaling factor = floor((t - 1) / (2*clients*bound)) and use maximum t, t = 2^{32}
+parameters['scaling-factor'] = int((2**32 - 1) / (2*parameters['num_clients']*parameters['bound']))
 
 # Konfigurer chunk-size for fhe schemes:
 if parameters['scheme'] in ['BGV', 'BFV']:
@@ -155,29 +161,29 @@ elif parameters['scheme'] == 'CKKS-NF':
 
 """Teste samme chunk-size for CKKS-NF på MNIST.
 Se om det er noe ekstra overhead."""
-SAMME_CHUNK_SIZE = True
-if parameters['scheme'] == 'CKKS-NF' and SAMME_CHUNK_SIZE:
-    if parameters['model'] in ['logreg']:
-        parameters['chunk_size'] = 10*131072
-    elif parameters['model'] == 'squeezenet':
-        if parameters['num_clients'] == 3:
-            parameters['chunk_size'] = int(np.ceil(727_627/3))
-        elif parameters['num_clients'] == 5:
-            parameters['chunk_size'] = int(np.ceil(727_627/10))
-        elif parameters['num_clients'] == 7:
-            parameters['chunk_size'] = int(np.ceil(727_627/21))
+# SAMME_CHUNK_SIZE = True
+# if parameters['scheme'] == 'CKKS-NF' and SAMME_CHUNK_SIZE:
+#     if parameters['model'] in ['logreg']:
+#         parameters['chunk_size'] = 10*131072
+#     elif parameters['model'] == 'squeezenet':
+#         if parameters['num_clients'] == 3:
+#             parameters['chunk_size'] = int(np.ceil(727_627/3))
+#         elif parameters['num_clients'] == 5:
+#             parameters['chunk_size'] = int(np.ceil(727_627/10))
+#         elif parameters['num_clients'] == 7:
+#             parameters['chunk_size'] = int(np.ceil(727_627/21))
 
-BGV_UTEN_POLYNOMIAL_ENCODING = False # Har allerede kjørt den!
-if BGV_UTEN_POLYNOMIAL_ENCODING:
-    if parameters['model'] in ['logreg']:
-        parameters['chunk_size'] = 10*131072
-    elif parameters['model'] == 'squeezenet':
-        if parameters['num_clients'] == 3:
-            parameters['chunk_size'] = int(np.ceil(727_627))
-        elif parameters['num_clients'] == 5:
-            parameters['chunk_size'] = int(np.ceil(727_627))
-        elif parameters['num_clients'] == 7:
-            parameters['chunk_size'] = int(np.ceil(727_627/2))
+# BGV_UTEN_POLYNOMIAL_ENCODING = False # Har allerede kjørt den!
+# if BGV_UTEN_POLYNOMIAL_ENCODING:
+#     if parameters['model'] in ['logreg']:
+#         parameters['chunk_size'] = 10*131072
+#     elif parameters['model'] == 'squeezenet':
+#         if parameters['num_clients'] == 3:
+#             parameters['chunk_size'] = int(np.ceil(727_627))
+#         elif parameters['num_clients'] == 5:
+#             parameters['chunk_size'] = int(np.ceil(727_627))
+#         elif parameters['num_clients'] == 7:
+#             parameters['chunk_size'] = int(np.ceil(727_627/2))
 
 
 # Prometheus queries.
@@ -246,16 +252,16 @@ for test in range(parameters["num_tests"]):
         #     args1 = f"flwr run {parameters["model"]}/{parameters["model"]}-ckks-nf/ "
         args2 += f" sec-type=\"fhefedavg\" scheme=\"{parameters["scheme"]}\" num-clients={parameters["num_clients"]} "
         args2 += f"security-level=\"{parameters['sec_level']}\" ring-dim={parameters['ring_dim']} "
-        if parameters['scheme'] != "CKKS":
+        if parameters['encoding'] == "BBB":
             args2 += f"num-coeffs={parameters['num_coeffs']} max-deg-int={parameters['max_deg_int']} "
+        elif parameters['encoding'] == "NS":
+            args2 += f"scaling-factor={parameters['scaling-factor']} bound={parameters['bound']} "
         if parameters['scheme'] == "BFV":
             args2 += f"mult-tech=\"{parameters['mult_tech']}\" "
         if parameters['scheme'] in ["CKKS", "CKKS-NF"]:
             args2 += f"delta-bits=\"{parameters['delta_bits']}\" "
         if parameters['scheme'] == "CKKS-NF":
             args2 += f"noise-flooding=true "
-        if BGV_UTEN_POLYNOMIAL_ENCODING:
-            args2 += f"no-polynomial-encoding=true "
         args2 += f"chunk-size={parameters['chunk_size']}' "
     elif parameters['program'] == 'secagg':
         args2 += f" max-weight={parameters['max_weight']}' "

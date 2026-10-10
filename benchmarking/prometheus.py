@@ -157,12 +157,14 @@ def construct_path(parameters):
         men jeg må se på hvilke parametre jeg faktisk skal se på."""
         if parameters["scheme"] == "BGV":
             details_dir = (f"nc{parameters['num_clients']}_"
+                        f"en{parameters['encoding']}_"
                         f"sl{parameters['sec_level']}_"
                         f"rd{parameters['ring_dim']}_"
                         f"pe{parameters['num_coeffs']}_"
                         f"cs{parameters['chunk_size']}/")
         elif parameters["scheme"] == "BFV":
             details_dir = (f"nc{parameters['num_clients']}_"
+                        f"en{parameters['encoding']}_"
                         f"sl{parameters['sec_level']}_"
                         f"rd{parameters['ring_dim']}_"
                         f"pe{parameters['num_coeffs']}_"
