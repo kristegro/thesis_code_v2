@@ -58,10 +58,12 @@ plaintext-mod = 40961
 chunk-size = 2097152 # Chunk-size is simply how many weights to encrypt at once,
 # should be multiple of batchsize for best effect.
 # chunk-size = 65536 # Works for BGV/BFV.
-num-coeffs = 16 # How many coefficients to use in polynomial encoding.
+encoding = "BBB" # "BBB" (Balanced base-B) or "NS" (normalized scaling).
+num-coeffs = 16 # How many coefficients to use in BBB encoding.
 # num-coeffs should be a power of 2 to fit better with batchsize.
-max-deg-int = 10 # Upper bound for degree of integer polynomial in encoding.
-no-polynomial-encoding = false # Hvis false bruk polynomial encoding.
+max-deg-int = 10 # Upper bound for degree of integer polynomial in BBB encoding.
+scaling-factor = 1 # Scale to use for NS encoding.
+bound = 1000 # Bound to use for NS encoding.
 
 # Keygen parameters:
 multiplicative-depth = 1 # Level of the scheme

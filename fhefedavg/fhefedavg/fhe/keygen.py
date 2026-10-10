@@ -99,18 +99,26 @@ def construct_cc(msg, context):
 
 
     elif scheme == "BFV":
-        plaintextMod = 2*num_clients + 1
+        if context.run_config['encoding'] == "BBB":
+                    plaintextMod = 2*num_clients + 1
+        else:
+            plaintextMod = 2**32 - 1 # Maximum possible in OpenFHE.
+
         multTech = context.run_config['mult-tech']
+
+        """Based on thesis experiment results,
+        the difference between bit sizes does not seem to have any real impact
+        on performance as long as the same ring dimension 
+        and number of modulus coefficients are used.
+        Therefore, 60 bits for Q can be used for all runs.
+        
+        The bug regarding HPS needing at least 50 bits for decryption to succeed
+        was fixed in OpenFHE version 1.5.1, but that is irrelevant now."""
+        Q_bits = 60
 
         parameters = fhe.CCParamsBFVRNS()
         if multTech == "BEHZ":
-            # BEHZ multiplication er ikke påvirket av bug, så den kan bruke lavere Q_bits.
-            Q_bits = 30
             parameters.SetMultiplicationTechnique(fhe.BEHZ)
-        else:
-            # Alle HPS varianter er påvirket av bug som gjør at Q_bits må være 50 for 
-            # at decryption skal bli riktig.
-            Q_bits = 50
 
         parameters.SetSecurityLevel(securityLevel)
         parameters.SetMultiplicativeDepth(multDepth)
@@ -130,45 +138,18 @@ def construct_cc(msg, context):
     
     elif scheme == "BGV":
         modulusSwitchTech = fhe.FIXEDMANUAL
-        plaintextMod = 2*num_clients + 1
-        if num_clients == 3:
-            if ringDim == 2**13:
-                q_0_bits = 20
-            elif ringDim == 2**14:
-                q_0_bits = 21
-            elif ringDim == 2**17:
-                q_0_bits = 26
-        elif num_clients == 5:
-            if ringDim == 2**13:
-                q_0_bits = 22
-            elif ringDim == 2**14:
-                q_0_bits = 22
-            elif ringDim == 2**17:
-                q_0_bits = 23
-        elif num_clients == 7:
-            if ringDim == 2**13:
-                q_0_bits = 20
-            elif ringDim == 2**14:
-                q_0_bits = 23
-            elif ringDim == 2**17:
-                q_0_bits = 26
 
-        # Bruk polynomial encoding ja/nei.
-        no_polynomial_encoding = context.run_config['no-polynomial-encoding']
-        if no_polynomial_encoding:
-            # Bruk 60 bits for sikkerhets skyld. Testing på BFV og CKKS
-            # + kommentar på openfhe forum viser at det ikke har noe å si så lenge
-            # ring dimension forblir den samme.
-            q_0_bits = 60
-            # Hver client kan kryptere maksimal verdi samme som SecAgg,
-            # og plaintext modulus må dermed være stor nok til å takle slike tall fra hver client.
-            # Hvert tall må være innenfor (-t/2, t/2].
-            if num_clients == 3:
-                plaintextMod = 3*2*12000 + 1
-            if num_clients == 5:
-                plaintextMod = 5*2*7200 + 1
-            if num_clients == 7:
-                plaintextMod = 7*2*5143 + 1
+        if context.run_config['encoding'] == "BBB":
+            plaintextMod = 2*num_clients + 1
+        else:
+            plaintextMod = 2**32 - 1 # Maximum possible in OpenFHE.
+
+        """Based on thesis experiment results,
+        the difference between bit sizes does not seem to have any real impact
+        on performance as long as the same ring dimension 
+        and number of modulus coefficients are used.
+        Therefore, 60 bits for q_0 can be used for all runs."""
+        q_0_bits = 60
        
         parameters = fhe.CCParamsBGVRNS()
         parameters.SetSecurityLevel(securityLevel)

@@ -27,6 +27,7 @@ from fhefedavg.fhe.openfhe_help_functions import (fhe_deserialize_file,
                                                   fhe_deserialize_string, 
                                                   fhe_serialize_string)
 from fhefedavg.encoding.pol_encoding import (encode_real, decode_real)
+from fhefedavg.encoding.scaled_normalizing_encoding import (encode, decode)
 
 
 def weights_to_ciphertext_bytes(weights: list[list[float]], cc, jpk, scheme):
@@ -413,6 +414,7 @@ def send_pds(msg: Message, context: Context):
         del tmp
         gc.collect()
 
+    encoding = context.run_config['encoding']
     if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
         # For CKKS, each slot in the plaintext contains a weight,
         # so the weights can inserted as is.
@@ -423,8 +425,36 @@ def send_pds(msg: Message, context: Context):
         del plaintexts
         gc.collect()
 
+    elif encoding == "NS" and (SCHEME == "BGV" or SCHEME == "BFV"):
+        # For BGV and BFV with normalized scaling encoding
+        # must decode each value.
+
+        weights_decoded = []
+        for sums in plaintexts:
+            # Unpack to get list.
+            unpacked = sums.GetCoefPackedValue()
+            length = len(unpacked)
+            # Decode each set value.
+            decoded = [decode(unpacked[j],
+                              context.run_config['scaling-factor'],
+                              context.run_config['bound'])
+                       for j in range(length)]
+            weights_decoded.append(decoded)
+            # Aggresiv garbage collection.
+            unpacked = 0
+            length = 0
+            decoded = 0
+        gc.collect()
+
+        weights_sum = np.asarray(weights_decoded)
+        # Aggresiv garbage collection.
+        del weights_decoded
+        del plaintexts
+        gc.collect()
+
     else:
-        # For BGV and BFV, every num-coeffs slots in the plaintext
+        # For BGV and BFV with balanced base-b encoding, 
+        # every num-coeffs slots in the plaintext
         # form the polynomial encoding for a single weight.
         # The weight must be decoded into a real number again before insertion.
 
@@ -563,14 +593,14 @@ def weights_blocks(msg: Message, context: Context):
         BATCHSIZE = context.run_config['ring-dim'] // 2
     log(INFO, f"pos = {pos}, pos+cs = {pos+cs}")
 
-    """Degree of polynomals used in real number encoding.
-    Each weight will need num_coeffs coefficients,
-    so checks should be multiplied by this.
-    If CKKS is used, set num_coeffs to 1 to avoid needing
-    a different check for CKKS. num_coeffs = 1 will work as it did previously."""
-    num_coeffs = context.run_config['num-coeffs']
-    max_deg_int = context.run_config['max-deg-int']
-    if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
+    encoding = context.run_config['encoding']
+    if encoding == "BBB" and (SCHEME == "BGV" or SCHEME == "BFV"):
+        """Only BGV/BFV with Balanced base-B encoding requires multiple
+        coefficients per weight."""
+        num_coeffs = context.run_config['num-coeffs']
+        max_deg_int = context.run_config['max-deg-int']
+    else:
+        # CKKS and BGV/BFV with normalized scaling only requires one.
         num_coeffs = 1
 
     for p in range(pos, pos+cs):
@@ -589,12 +619,17 @@ def weights_blocks(msg: Message, context: Context):
             if SCHEME == "CKKS" or SCHEME == "CKKS-NF":
                 # For CKKS the weights can be added as is.
                 weights_chunk.append(weights[idx[0]][tuple(idx[1::])])
-            else:
+            elif encoding == "BBB" and (SCHEME == "BGV" or SCHEME == "BFV"):
                 # For BGV and BFV the weights need to be converted
                 # into polynomials before encryption.
                 weights_chunk += encode_real(weights[idx[0]][tuple(idx[1::])],
                                                 num_coeffs,
                                                 max_deg_int)
+            else:
+                # BGV/BFV with normalized scaling.
+                weights_chunk.append(encode(weights[idx[0]][tuple(idx[1::])],
+                                            context.run_config['scaling-factor'],
+                                            context.run_config['bound']))
             indices.append(p)
         else:
             # Capacity has been reached.
