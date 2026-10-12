@@ -52,10 +52,7 @@ for test in range(parameters["num_tests"]):
     connection.close()
     print("Mottatt beskjed om å skru på containere. Gjør det.")
     print("Skrur på egne containere.")
-    if parameters["model"] == "logreg" or parameters['num_clients'] in [3,5, 7]:
-        args = f'docker compose -f dockerfiles/logreg-desktop-{parameters["num_clients"]}c.yaml up'
-    else:
-        args = f'docker compose -f dockerfiles/desktop-{parameters["num_clients"]}c.yaml up'
+    args = f'docker compose -f dockerfiles/logreg-desktop-{parameters["num_clients"]}c.yaml up'
     containers = subprocess.Popen(args, shell=True, start_new_session=True)
 
     """Få beskjed om å overlevere metrics mellom start- og sluttidspunkter.
@@ -115,27 +112,19 @@ for test in range(parameters["num_tests"]):
                                                    time_query)
     
     """Må lese inn kjøretider for training og evaluation fra
-        storage/key_store/node{i}/{model}-{program}-training-time/run{j}/time.txt
+        storage/key_store/node{i}/training-time/run{j}/time.txt
     og
-        storage/key_store/node{i}/{model}-{program}-evaluation-time/run{j}/time.txt
+        storage/key_store/node{i}/evaluation-time/run{j}/time.txt
     for alle i og j.
     
     Lag dict med nøkler per client og mean over runs."""
     ml_times_per_round = []
-    if parameters["model"] == "logreg" or parameters['num_clients'] in [3,5, 7]:
-        if parameters['num_clients'] == 3:
-            ids = [0,1]
-        elif parameters['num_clients'] == 5:
-            ids = [0,1,2]
-        elif parameters['num_clients'] == 7:
-            ids = [0,1,2,3]
-    else:
-        if parameters['num_clients'] == 3:
-            ids = [0]
-        elif parameters['num_clients'] == 5:
-            ids = [0,1]
-        elif parameters['num_clients'] == 7:
-            ids = [0,1,2]
+    if parameters['num_clients'] == 3:
+        ids = [0,1]
+    elif parameters['num_clients'] == 5:
+        ids = [0,1,2]
+    elif parameters['num_clients'] == 7:
+        ids = [0,1,2,3]
     for i in ids:
         """Each time file has format:
         <time round 1>
@@ -143,8 +132,8 @@ for test in range(parameters["num_tests"]):
         <time round 3>"""
         round_times = []
         for round in range(1,4):
-            training_path = f"./storage/key_store/node{i}/{parameters['model']}-{parameters['program']}-training-time/run{round}/time.txt"
-            evaluation_path = f"./storage/key_store/node{i}/{parameters['model']}-{parameters['program']}-evaluation-time/run{round}/time.txt"
+            training_path = f"./storage/key_store/node{i}/training-time/run{round}/time.txt"
+            evaluation_path = f"./storage/key_store/node{i}/evaluation-time/run{round}/time.txt"
             with open(training_path, "r") as infile:
                 line = infile.readline()
                 round_times.append(float(line))
@@ -154,22 +143,22 @@ for test in range(parameters["num_tests"]):
         ml_times_per_round.append(round_times)
     
     """Slett filer som ble brukt til å lagre kjøretider, hvis de eksisterer."""
-    if os.path.isdir(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node0/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node1/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node2/{parameters['model']}-{parameters['program']}-evaluation-time/")
-    if os.path.isdir(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-training-time/"):
-        shutil.rmtree(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-training-time/")
-    if os.path.isdir(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-evaluation-time/"):
-        shutil.rmtree(f"./storage/key_store/node3/{parameters['model']}-{parameters['program']}-evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node0/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node0/training-time/")
+    if os.path.isdir(f"./storage/key_store/node0/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node0/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node1/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node1/training-time/")
+    if os.path.isdir(f"./storage/key_store/node1/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node1/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node2/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node2/training-time/")
+    if os.path.isdir(f"./storage/key_store/node2/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node2/evaluation-time/")
+    if os.path.isdir(f"./storage/key_store/node3/training-time/"):
+        shutil.rmtree(f"./storage/key_store/node3/training-time/")
+    if os.path.isdir(f"./storage/key_store/node3/evaluation-time/"):
+        shutil.rmtree(f"./storage/key_store/node3/evaluation-time/")
 
     mean_per_round = np.mean(ml_times_per_round, axis=0)
     # Send metrics tilbake.
@@ -177,10 +166,7 @@ for test in range(parameters["num_tests"]):
 
     connection.close()
     print("Skrur av egne containere.")
-    if parameters["model"] == "logreg" or parameters['num_clients'] in [3,5, 7]:
-        args = f'docker compose -f dockerfiles/logreg-desktop-{parameters["num_clients"]}c.yaml down'
-    else:
-        args = f'docker compose -f dockerfiles/desktop-{parameters["num_clients"]}c.yaml down'
+    args = f'docker compose -f dockerfiles/logreg-desktop-{parameters["num_clients"]}c.yaml down'
     down = subprocess.run(args=args, shell=True, start_new_session=True)
 
     # Garbage collection.
