@@ -17,7 +17,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description='Run benchmarking for chosen parameter combination.')
 parser.add_argument('program', metavar='program', type=str,
                     help='Program to benchmark',
-                    choices=['orgfedavg', 'fhefedavg', 'secagg'])
+                    choices=['orgfedavg', 'fhefedavg'])
 parser.add_argument('num_clients', metavar='num_clients', type=int,
                     help='Number of clients',
                     choices=[3, 5, 7])
@@ -263,8 +263,6 @@ for test in range(parameters["num_tests"]):
         if parameters['scheme'] == "CKKS-NF":
             args2 += f"noise-flooding=true "
         args2 += f"chunk-size={parameters['chunk_size']}' "
-    elif parameters['program'] == 'secagg':
-        args2 += f" max-weight={parameters['max_weight']}' "
     else:
         args2 += f"' "
     args = args1+args2
