@@ -440,7 +440,7 @@ for test in range(parameters["num_tests"]):
             block_times.append(float(line))
         runtime_to_csv(num_dirs, 
                        parameters, 
-                       (runtime, laptop_ml_mean_times, noise_times, keygen_times, dec_times, block_times))
+                       (runtime, laptop_ml_mean_times, desktop_ml_mean_times, noise_times, keygen_times, dec_times, block_times))
     elif parameters['program'] == "fhefedavg":
         keygen_times = []
         dec_times = []
@@ -461,11 +461,11 @@ for test in range(parameters["num_tests"]):
             block_times.append(float(line))
         runtime_to_csv(num_dirs, 
                        parameters, 
-                       (runtime, laptop_ml_mean_times, keygen_times, dec_times, block_times))
+                       (runtime, laptop_ml_mean_times, desktop_ml_mean_times, keygen_times, dec_times, block_times))
     else:
         runtime_to_csv(num_dirs,
                        parameters, 
-                       (runtime, laptop_ml_mean_times))
+                       (runtime, laptop_ml_mean_times, desktop_ml_mean_times))
     
     """Slett filer som ble brukt til å lagre kjøretider, hvis de eksisterer."""
     if os.path.isdir(f"./storage/key_store/server/keygen-time/"):
